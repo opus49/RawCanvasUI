@@ -26,9 +26,20 @@ namespace RawCanvasUI.Mouse
             widgetManager.UpdateHoveredWidget(cursor);
             widgetManager.UpdateHoveredControl(cursor);
             widgetManager.PressedWidget = widgetManager.HoveredWidget;
-            if (widgetManager.HoveredWidget != null && widgetManager.HoveredControl is IClickable clickable)
+
+            if (widgetManager.HoveredControl is IClickable clickable)
             {
                 clickable.Click();
+                widgetManager.PressedControl = widgetManager.HoveredControl;
+            }
+            else if (widgetManager.HoveredControl is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
+            {
+                scrollable.ScrollbarClick(cursor);
+                widgetManager.PressedControl = widgetManager.HoveredControl;
+            }
+            else
+            {
+                widgetManager.PressedControl = null;
             }
 
             widgetManager.SetMouseState(new MouseDownState());

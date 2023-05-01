@@ -1,9 +1,7 @@
-﻿﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
-using RawCanvasUI.Widgets;
 
 namespace RawCanvasUI.Util
 {
@@ -24,6 +22,11 @@ namespace RawCanvasUI.Util
         /// Gets or sets the widget that is currently being hovered.
         /// </summary>
         public IWidget HoveredWidget { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the control that was under the mouse when it was pressed.
+        /// </summary>
+        public IControl PressedControl { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the widget that is currently being pressed on by the mouse.

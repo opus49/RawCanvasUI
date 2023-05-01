@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using RawCanvasUI.Interfaces;
@@ -27,9 +28,17 @@ namespace RawCanvasUI.Elements
         }
 
         /// <summary>
+        /// Gets the offset between the mouse cursor and the top-left corner of the inner scrollbar when being drag scrolled.
+        /// </summary>
+        public PointF DragScrollOffset { get; protected set; }
+
+        /// <summary>
         /// Gets or sets the index of the first line of text to be drawn.
         /// </summary>
         public int FirstLineIndex { get; protected set; } = 0;
+
+        /// <inheritdoc/>
+        public bool IsDragScrolling { get; protected set; } = false;
 
         /// <inheritdoc/>
         public bool IsEnabled { get; set; } = true;
@@ -110,6 +119,24 @@ namespace RawCanvasUI.Elements
         }
 
         /// <inheritdoc/>
+        public void DragScroll(Cursor cursor)
+        {
+            float newY = cursor.Bounds.Location.Y + this.DragScrollOffset.Y; // this is where the scrollbar should be moved to
+            if (newY > this.ScrollbarOuterBounds.Y && newY < this.ScrollbarOuterBounds.Y + this.ScrollbarOuterBounds.Height - this.ScrollbarInnerBounds.Height)
+            {
+                float scrollbarLength = this.ScrollbarInnerBounds.Height;
+                float slotLength = this.Bounds.Height - scrollbarLength;
+                int maxIndex = this.Lines.Count - this.MaxLines;
+                float normalizedIndex = (newY - this.Bounds.Y) / slotLength;
+                Logging.Info($"newY: {newY}  scrollbarLength: {scrollbarLength}  slotLength: {slotLength}  maxIndex: {maxIndex}  normalizedIndex: {normalizedIndex}");
+                int index = Convert.ToInt32(Math.Round(normalizedIndex * maxIndex));
+                Logging.Info($"index: {index}");
+                this.FirstLineIndex = index < 0 ? 0 : index > maxIndex ? maxIndex : index;
+            }
+        }
+
+
+        /// <inheritdoc/>
         public override void Draw(Rage.Graphics g)
         {
             g.DrawRectangle(this.BorderBounds, this.BorderColor);
@@ -147,6 +174,37 @@ namespace RawCanvasUI.Elements
                     this.FirstLineIndex++;
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        public void ScrollbarClick(Cursor cursor)
+        {
+            if (this.ScrollbarInnerBounds.Contains(cursor.Bounds.Location))
+            {
+                this.IsDragScrolling = true;
+                this.DragScrollOffset = new PointF(this.ScrollbarInnerBounds.X - cursor.Bounds.Location.X, this.ScrollbarInnerBounds.Y - cursor.Bounds.Location.Y);
+            }
+            else
+            {
+                float normalizedPosition = (cursor.Bounds.Y - this.ScrollbarOuterBounds.Y) / this.ScrollbarOuterBounds.Height;
+                int maxFirstLineIndex = this.Lines.Count - this.MaxLines;
+                int newIndex = (int)(Math.Round(maxFirstLineIndex * normalizedPosition));
+                this.FirstLineIndex = newIndex < 0 ? 0 : newIndex > maxFirstLineIndex ? maxFirstLineIndex : newIndex;
+            }
+        }
+
+        /// <inheritdoc/>
+        public bool ScrollbarContains(Cursor cursor)
+        {
+            return this.ScrollbarOuterBounds.Contains(cursor.Bounds.Location);
+        }
+
+        /// <summary>
+        /// Stops a drag scroll.
+        /// </summary>
+        public void StopDragScrolling()
+        {
+            this.IsDragScrolling = false;
         }
 
         /// <summary>

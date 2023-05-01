@@ -23,6 +23,16 @@ namespace RawCanvasUI.Mouse
 
         private void ReleaseMouse(WidgetManager widgetManager)
         {
+            if (widgetManager.PressedControl != null)
+            {
+                if (widgetManager.PressedControl is IScrollable scrollable && scrollable.IsDragScrolling)
+                {
+                    scrollable.StopDragScrolling();
+                }
+
+                widgetManager.PressedControl = null;
+            }
+
             if (widgetManager.PressedWidget != null)
             {
                 if (widgetManager.PressedWidget.IsDragging)
@@ -39,12 +49,19 @@ namespace RawCanvasUI.Mouse
         private void PressMouse(WidgetManager widgetManager, Cursor cursor)
         {
             var widget = widgetManager.PressedWidget;
-            if (widget == null || (widgetManager.HoveredControl != null && widgetManager.HoveredControl is IClickable))
+            if (widget == null || widgetManager.PressedControl is IClickable)
             {
                 return;
             }
 
-            if (widget.IsDragging)
+            if (widgetManager.PressedControl is IScrollable scrollable)
+            {
+                if (scrollable.IsDragScrolling)
+                {
+                    scrollable.DragScroll(cursor);
+                }
+            }
+            else if (widget.IsDragging)
             {
                 widget.Drag(cursor.Position);
                 if (cursor.ScrollWheelStatus != ScrollWheelStatus.None)
