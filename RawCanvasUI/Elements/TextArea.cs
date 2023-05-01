@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
@@ -10,9 +11,6 @@ namespace RawCanvasUI.Elements
     /// </summary>
     public class TextArea : TextBox, IScrollable
     {
-        private readonly List<string> text = new List<string>();
-        private int firstLineIndex = 0;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TextArea"/> class.
         /// </summary>
@@ -29,17 +27,17 @@ namespace RawCanvasUI.Elements
         }
 
         /// <summary>
-        /// Clears the text from the text area.
+        /// Gets or sets the index of the first line of text to be drawn.
         /// </summary>
-        public void Clear()
-        {
-            this.text.Clear();
-            this.firstLineIndex = 0;
-            this.UpdateBounds();
-        }
+        public int FirstLineIndex { get; protected set; } = 0;
 
         /// <inheritdoc/>
         public bool IsEnabled { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the lines belonging to the text area.
+        /// </summary>
+        public List<string> Lines { get; protected set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the line gap used in between lines.
@@ -56,17 +54,53 @@ namespace RawCanvasUI.Elements
         /// </summary>
         public float ScaledLineGap { get; protected set; } = 0.25f;
 
+
+        /// <summary>
+        /// Gets or sets the real screen bounds of the inner scrollbar.
+        /// </summary>
+        public RectangleF ScrollbarInnerBounds { get; protected set; } = default;
+
+        /// <summary>
+        /// Gets or sets the scrollbar inner color.
+        /// </summary>
+        public Color ScrollbarInnerColor { get; set; } = Color.FromArgb(92, 92, 92);
+
+        /// <summary>
+        /// Gets or sets the real screen bounds of the outer scrollbar.
+        /// </summary>
+        public RectangleF ScrollbarOuterBounds { get; protected set; } = default;
+
+        /// <summary>
+        /// Gets or sets the scrollbar outer color.
+        /// </summary>
+        public Color ScrollbarOuterColor { get; set; } = Color.FromArgb(0, 0, 0);
+
+        /// <summary>
+        /// Gets or sets the width of the scrollbar.
+        /// </summary>
+        public float ScrollbarWidth { get; set; } = 8f;
+
         /// <summary>
         /// Add a line of text to the text box.
         /// </summary>
         /// <param name="text">The line of text to add.</param>
         public void Add(string text)
         {
-            this.text.Add(text);
-            if (this.text.Count > this.MaxLines)
+            this.Lines.Add(text);
+            if (this.Lines.Count > this.MaxLines)
             {
-                this.firstLineIndex = this.text.Count - this.MaxLines;
+                this.FirstLineIndex = this.Lines.Count - this.MaxLines;
             }
+        }
+
+        /// <summary>
+        /// Clears the text from the text area.
+        /// </summary>
+        public void Clear()
+        {
+            this.Lines.Clear();
+            this.FirstLineIndex = 0;
+            this.UpdateBounds();
         }
 
         /// <inheritdoc/>
@@ -80,14 +114,19 @@ namespace RawCanvasUI.Elements
         {
             g.DrawRectangle(this.BorderBounds, this.BorderColor);
             g.DrawRectangle(this.Bounds, this.BackgroundColor);
-            for (int i = this.firstLineIndex; i < this.text.Count; i++)
+            for (int i = this.FirstLineIndex; i < this.Lines.Count; i++)
             {
-                if (i >= this.firstLineIndex + this.MaxLines)
+                if (i >= this.FirstLineIndex + this.MaxLines)
                 {
-                    return;
+                    break;
                 }
 
-                g.DrawText(this.text[i], this.FontFamily, this.ScaledFontSize, new PointF(this.TextPosition.X, this.TextPosition.Y + ((i - this.firstLineIndex) * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap)))), this.FontColor);
+                g.DrawText(this.Lines[i], this.FontFamily, this.ScaledFontSize, new PointF(this.TextPosition.X, this.TextPosition.Y + ((i - this.FirstLineIndex) * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap)))), this.FontColor);
+            }
+
+            if (this.ScrollbarWidth > 0)
+            {
+                this.DrawScrollbar(g);
             }
         }
 
@@ -96,16 +135,16 @@ namespace RawCanvasUI.Elements
         {
             if (status == ScrollWheelStatus.Up)
             {
-                if (this.firstLineIndex > 0)
+                if (this.FirstLineIndex > 0)
                 {
-                    this.firstLineIndex--;
+                    this.FirstLineIndex--;
                 }
             }
             else if (status == ScrollWheelStatus.Down)
             {
-                if (this.text.Count > this.MaxLines && this.firstLineIndex < this.text.Count - this.MaxLines)
+                if (this.Lines.Count > this.MaxLines && this.FirstLineIndex < this.Lines.Count - this.MaxLines)
                 {
-                    this.firstLineIndex++;
+                    this.FirstLineIndex++;
                 }
             }
         }
@@ -125,6 +164,25 @@ namespace RawCanvasUI.Elements
         protected void UpdateScaledLineGap(float scale)
         {
             this.ScaledLineGap = this.LineGap * scale;
+        }
+
+        protected void DrawScrollbar(Rage.Graphics g)
+        {
+            if (this.Parent == null || this.Lines.Count <= this.MaxLines)
+            {
+                return;
+            }
+
+            float scrollbarLength = System.Math.Max(10f, this.Bounds.Height * ((float)this.MaxLines / this.Lines.Count));
+            float scrollbarWidth = this.ScrollbarWidth * this.Parent.Scale.Height;
+            float slotLength = this.Bounds.Height - scrollbarLength;
+            float normalizedPosition = (float)this.FirstLineIndex / (this.Lines.Count - this.MaxLines);
+            float positionY = this.Bounds.Y + (slotLength * normalizedPosition);
+            float positionX = this.Bounds.X + this.Bounds.Width - scrollbarWidth;
+            this.ScrollbarInnerBounds = new RectangleF(positionX, positionY, scrollbarWidth, scrollbarLength);
+            this.ScrollbarOuterBounds = new RectangleF(positionX, this.Bounds.Y, scrollbarWidth, this.Bounds.Height);
+            g.DrawRectangle(this.ScrollbarOuterBounds, this.ScrollbarOuterColor);
+            g.DrawRectangle(this.ScrollbarInnerBounds, this.ScrollbarInnerColor);
         }
 
         /// <inheritdoc/>
