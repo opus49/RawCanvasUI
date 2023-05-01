@@ -134,7 +134,6 @@ namespace RawCanvasUI
             this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
             if (this.Resolution != Game.Resolution)
             {
-                Logging.Info("game resolution has changed, updating");
                 this.UpdateBounds();
             }
         }
