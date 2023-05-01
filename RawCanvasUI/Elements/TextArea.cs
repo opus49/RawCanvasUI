@@ -124,13 +124,15 @@ namespace RawCanvasUI.Elements
             float newY = cursor.Bounds.Location.Y + this.DragScrollOffset.Y; // this is where the scrollbar should be moved to
             if (newY > this.ScrollbarOuterBounds.Y && newY < this.ScrollbarOuterBounds.Y + this.ScrollbarOuterBounds.Height - this.ScrollbarInnerBounds.Height)
             {
-                float scrollbarLength = this.ScrollbarInnerBounds.Height;
-                float slotLength = this.Bounds.Height - scrollbarLength;
+                float slotLength = this.Bounds.Height - this.ScrollbarInnerBounds.Height;
+                if (slotLength == 0)
+                {
+                    return;
+                }
+
                 int maxIndex = this.Lines.Count - this.MaxLines;
                 float normalizedIndex = (newY - this.Bounds.Y) / slotLength;
-                Logging.Info($"newY: {newY}  scrollbarLength: {scrollbarLength}  slotLength: {slotLength}  maxIndex: {maxIndex}  normalizedIndex: {normalizedIndex}");
                 int index = Convert.ToInt32(Math.Round(normalizedIndex * maxIndex));
-                Logging.Info($"index: {index}");
                 this.FirstLineIndex = index < 0 ? 0 : index > maxIndex ? maxIndex : index;
             }
         }
