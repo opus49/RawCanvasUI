@@ -11,10 +11,8 @@ namespace RawCanvasUI.Widgets
     /// </summary>
     public class TabbedWidget : TextureWidget
     {
-        private readonly Dictionary<string, IWidget> widgets = new Dictionary<string, IWidget>();
         private readonly string activeButtonTextureName;
         private readonly string inactiveButtonTextureName;
-        private readonly List<ToggledButton> tabButtons = new List<ToggledButton>();
         private string activeTabTitle = string.Empty;
 
         /// <summary>
@@ -33,6 +31,21 @@ namespace RawCanvasUI.Widgets
         }
 
         /// <summary>
+        /// Gets or sets the list of toggled buttons used for the tabs.
+        /// </summary>
+        public List<ToggledButton> TabButtons { get; protected set; } = new List<ToggledButton>();
+
+        /// <summary>
+        /// Gets or sets the tab offset from upper-right hand corner of tabbed widget.
+        /// </summary>
+        public Point TabOffset { get; set; } = new Point(0, 0);
+
+        /// <summary>
+        /// Gets or sets the list of widgets contained by the tabbed widget.
+        /// </summary>
+        public Dictionary<string, IWidget> Widgets { get; protected set; } = new Dictionary<string, IWidget>();
+
+        /// <summary>
         /// Properly adds a widget to the tabbed widget.
         /// </summary>
         /// <param name="widget">The widget to add.</param>
@@ -40,21 +53,21 @@ namespace RawCanvasUI.Widgets
         public void AddWidget(IWidget widget, string tabTitle)
         {
             this.Add(widget);
-            if (this.widgets.Count == 0)
+            if (this.Widgets.Count == 0)
             {
                 this.activeTabTitle = tabTitle;
             }
 
-            this.widgets[tabTitle] = widget;
+            this.Widgets[tabTitle] = widget;
             var button = new ToggledButton(tabTitle, this.activeButtonTextureName, this.inactiveButtonTextureName, tabTitle, true);
             this.Add(button);
             button.AddObserver(this);
-            if (this.widgets.Count == 1)
+            if (this.Widgets.Count == 1)
             {
                 button.IsActive = true;
             }
 
-            this.tabButtons.Add(button);
+            this.TabButtons.Add(button);
         }
 
         /// <inheritdoc/>
@@ -63,8 +76,8 @@ namespace RawCanvasUI.Widgets
             if (this.Texture != null)
             {
                 g.DrawTexture(this.Texture, this.Bounds);
-                this.tabButtons.ForEach(button => button.Draw(g));
-                if (this.widgets.TryGetValue(this.activeTabTitle, out IWidget widget))
+                this.TabButtons.ForEach(button => button.Draw(g));
+                if (this.Widgets.TryGetValue(this.activeTabTitle, out IWidget widget))
                 {
                     widget.Draw(g);
                 }
@@ -74,40 +87,49 @@ namespace RawCanvasUI.Widgets
         /// <inheritdoc />
         public override void OnUpdated(IObservable obj)
         {
-            this.tabButtons.Where(x => x.Id != obj.Id).ToList().ForEach(x => x.IsActive = false);
-            this.activeTabTitle = obj.Id;
+            if (this.Widgets.ContainsKey(obj.Id))
+            {
+                this.TabButtons.Where(x => x.Id != obj.Id).ToList().ForEach(x => x.IsActive = false);
+                this.activeTabTitle = obj.Id;
+            }
         }
 
         /// <inheritdoc/>
         public override void UpdateBounds()
         {
-            if (this.widgets.Count == 0 || this.Parent == null || this.Texture == null)
+            if (this.Widgets.Count == 0 || this.Parent == null || this.Texture == null)
             {
                 return;
             }
 
             base.UpdateBounds();
+            this.UpdateTabButtonBounds();
+            this.UpdateWidgetBounds();
+        }
 
-            // update the buttons
-            for (int i = 0; i < this.tabButtons.Count; i++)
+        protected void UpdateTabButtonBounds()
+        {
+            for (int i = 0; i < this.TabButtons.Count; i++)
             {
-                var button = this.tabButtons[i];
+                var button = this.TabButtons[i];
                 if (i == 0)
                 {
-                    button.MoveTo(new Point(0, 0));
+                    button.MoveTo(new Point(this.TabOffset.X, this.TabOffset.Y));
                 }
                 else
                 {
-                    button.MoveTo(new Point(this.tabButtons[i - 1].Position.X + this.tabButtons[i - 1].Width, 0));
+                    button.MoveTo(new Point(this.TabButtons[i - 1].Position.X + this.TabButtons[i - 1].Width + this.TabOffset.X, this.TabOffset.Y));
                 }
             }
+        }
 
-            // now reposition and reupdate the widgets
+        protected void UpdateWidgetBounds()
+        {
             foreach (var widget in this.Items.OfType<IWidget>())
             {
-                if (this.tabButtons.Count > 0)
+                if (this.TabButtons.Count > 0)
                 {
-                    widget.MoveTo(new Point(0, this.tabButtons[0].Height));
+                    widget.MoveTo(new Point(0, this.TabButtons[0].Height));
                 }
             }
         }
