@@ -105,9 +105,10 @@ namespace RawCanvasUI.Elements
         /// <param name="scale">The scale to apply to the border width.</param>
         protected virtual void UpdateBorderBounds(float scale)
         {
-            this.BorderBounds = this.Bounds;
-            var borderWidth = this.BorderWidth * scale;
-            this.BorderBounds.Inflate(borderWidth, borderWidth);
+            var borderBounds = this.Bounds;
+            float borderWidth = this.BorderWidth * scale;
+            borderBounds.Inflate(borderWidth, borderWidth);
+            this.BorderBounds = borderBounds;
         }
 
         /// <summary>

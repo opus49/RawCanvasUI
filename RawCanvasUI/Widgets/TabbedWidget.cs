@@ -107,7 +107,7 @@ namespace RawCanvasUI.Widgets
             this.UpdateWidgetBounds();
         }
 
-        protected void UpdateTabButtonBounds()
+        protected virtual void UpdateTabButtonBounds()
         {
             for (int i = 0; i < this.TabButtons.Count; i++)
             {
@@ -123,7 +123,7 @@ namespace RawCanvasUI.Widgets
             }
         }
 
-        protected void UpdateWidgetBounds()
+        protected virtual void UpdateWidgetBounds()
         {
             foreach (var widget in this.Items.OfType<IWidget>())
             {
