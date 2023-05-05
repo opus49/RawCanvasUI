@@ -63,7 +63,6 @@ namespace RawCanvasUI.Elements
         /// </summary>
         public float ScaledLineGap { get; protected set; } = 0.25f;
 
-
         /// <summary>
         /// Gets or sets the real screen bounds of the inner scrollbar.
         /// </summary>
@@ -93,7 +92,7 @@ namespace RawCanvasUI.Elements
         /// Add a line of text to the text box.
         /// </summary>
         /// <param name="text">The line of text to add.</param>
-        public void Add(string text)
+        public virtual void Add(string text)
         {
             this.Lines.Add(text);
             if (this.Lines.Count > this.MaxLines)
@@ -105,7 +104,7 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Clears the text from the text area.
         /// </summary>
-        public void Clear()
+        public void ClearText()
         {
             this.Lines.Clear();
             this.FirstLineIndex = 0;

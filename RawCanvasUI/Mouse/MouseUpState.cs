@@ -29,7 +29,15 @@ namespace RawCanvasUI.Mouse
 
             if (widgetManager.HoveredControl is IClickable clickable)
             {
-                clickable.Click();
+                if (clickable is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
+                {
+                    scrollable.ScrollbarClick(cursor);
+                }
+                else
+                {
+                    clickable.Click(cursor);
+                }
+
                 widgetManager.PressedControl = widgetManager.HoveredControl;
             }
             else if (widgetManager.HoveredControl is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
@@ -52,7 +60,7 @@ namespace RawCanvasUI.Mouse
 
             if (widgetManager.HoveredControl != null)
             {
-                if (widgetManager.HoveredControl is IClickable)
+                if (widgetManager.HoveredControl is IClickable && !(widgetManager.HoveredControl is ISelectable<IDataItem>))
                 {
                     cursor.SetCursorType(CursorType.Pointing);
                 }

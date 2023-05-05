@@ -1,4 +1,6 @@
-﻿namespace RawCanvasUI.Interfaces
+﻿using RawCanvasUI.Mouse;
+
+namespace RawCanvasUI.Interfaces
 {
     /// <summary>
     /// Represents a control that responds to a mouse click.
@@ -8,6 +10,6 @@
         /// <summary>
         /// Executed when the user clicks the control.
         /// </summary>
-        void Click();
+        void Click(Cursor cursor);
     }
 }

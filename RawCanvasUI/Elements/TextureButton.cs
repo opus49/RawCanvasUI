@@ -87,7 +87,7 @@ namespace RawCanvasUI.Elements
         }
 
         /// <inheritdoc/>
-        public virtual void Click()
+        public virtual void Click(Cursor cursor)
         {
             foreach (var observer in this.observers)
             {

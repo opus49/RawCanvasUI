@@ -1,4 +1,6 @@
-﻿﻿namespace RawCanvasUI.Elements
+﻿using RawCanvasUI.Mouse;
+
+namespace RawCanvasUI.Elements
 {
     /// <summary>
     /// Represents a labeled texture button that can be toggled on and off.
@@ -44,12 +46,12 @@
     }
 
     /// <inheritdoc/>
-    public override void Click()
+    public override void Click(Cursor cursor)
     {
         if (!this.isActivateOnly || !this.isActive)
         {
             this.Toggle();
-            base.Click();
+            base.Click(cursor);
         }
     }
 
