@@ -5,8 +5,7 @@ using System.Drawing;
 
 namespace RawCanvasUI.Elements
 {
-    public class DataGrid<T> : TextArea, ISelectable<T>
-        where T : IDataItem
+    public class DataGrid : TextArea, ISelectable
     {
         private readonly List<IObserver> observers = new List<IObserver>();
 
@@ -31,13 +30,13 @@ namespace RawCanvasUI.Elements
         public Color HighlightFontColor { get; set; } = Color.White;
 
         /// <inheritdoc/>
-        public List<T> Items { get; protected set; } = new List<T>();
+        public List<IDataItem> Items { get; protected set; } = new List<IDataItem>();
 
         /// <inheritdoc/>
         public int SelectedIndex { get; protected set; } = -1;
 
         /// <inheritdoc/>
-        public T SelectedItem { get; protected set; } = default;
+        public IDataItem SelectedItem { get; protected set; } = default;
 
         public override void Add(string text)
         {
@@ -45,7 +44,7 @@ namespace RawCanvasUI.Elements
         }
 
         /// <inheritdoc/>
-        public virtual void Add(T item)
+        public virtual void Add(IDataItem item)
         {
             this.Items.Add(item);
             this.Lines.Add(item.ToString());
@@ -62,22 +61,6 @@ namespace RawCanvasUI.Elements
         {
             this.Items.Clear();
             this.Lines.Clear();
-        }
-
-        /// <inheritdoc/>
-        public virtual void Click(Cursor cursor)
-        {
-            for (int i = this.FirstLineIndex; i < this.Lines.Count; i++)
-            {
-                var lineBounds = this.GetLineBounds(i - this.FirstLineIndex);
-                if (lineBounds.Contains(new PointF(cursor.Bounds.X, cursor.Bounds.Y)))
-                {
-                    this.SelectedIndex = i;
-                    this.SelectedItem = this.Items[i];
-                    this.observers.ForEach(x => x.OnUpdated(this));
-                    return;
-                }
-            }
         }
 
         /// <inheritdoc/>
@@ -107,7 +90,7 @@ namespace RawCanvasUI.Elements
             }
         }
 
-        public void Remove(T item)
+        public void Remove(IDataItem item)
         {
             this.Items.Remove(item);
         }
@@ -116,6 +99,22 @@ namespace RawCanvasUI.Elements
         public void RemoveObserver(IObserver observer)
         {
             this.observers.Remove(observer);
+        }
+
+        /// <inheritdoc/>
+        public virtual void Select(Cursor cursor)
+        {
+            for (int i = this.FirstLineIndex; i < this.Lines.Count; i++)
+            {
+                var lineBounds = this.GetLineBounds(i - this.FirstLineIndex);
+                if (lineBounds.Contains(new PointF(cursor.Bounds.X, cursor.Bounds.Y)))
+                {
+                    this.SelectedIndex = i;
+                    this.SelectedItem = this.Items[i];
+                    this.observers.ForEach(x => x.OnUpdated(this));
+                    return;
+                }
+            }
         }
 
         protected RectangleF GetLineBounds(int index)

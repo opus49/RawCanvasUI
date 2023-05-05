@@ -29,24 +29,33 @@ namespace RawCanvasUI.Mouse
 
             if (widgetManager.HoveredControl is IClickable clickable)
             {
-                if (clickable is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
-                {
-                    scrollable.ScrollbarClick(cursor);
-                }
-                else
-                {
-                    clickable.Click(cursor);
-                }
-
+                Logging.Debug($"user pressed mouse on IClickable: {clickable.GetType()}");
+                clickable.Click(cursor);
                 widgetManager.PressedControl = widgetManager.HoveredControl;
             }
             else if (widgetManager.HoveredControl is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
             {
+                Logging.Debug($"user pressed mouse on IScrollable that contains cursor: {scrollable.GetType()}");
                 scrollable.ScrollbarClick(cursor);
                 widgetManager.PressedControl = widgetManager.HoveredControl;
             }
+            else if (widgetManager.HoveredControl is ISelectable selectable)
+            {
+                Logging.Debug($"user pressed on ISelectable: {selectable.GetType()}");
+                selectable.Select(cursor);
+                widgetManager.PressedControl = null;
+            }
             else
             {
+                if (widgetManager.HoveredControl != null)
+                {
+                    Logging.Debug($"user pressed mouse on: {widgetManager.HoveredControl.GetType()}");
+                }
+                else
+                {
+                    Logging.Debug("user pressed mouse but it wasn't over a control");
+                }
+
                 widgetManager.PressedControl = null;
             }
 
@@ -60,7 +69,7 @@ namespace RawCanvasUI.Mouse
 
             if (widgetManager.HoveredControl != null)
             {
-                if (widgetManager.HoveredControl is IClickable && !(widgetManager.HoveredControl is ISelectable<IDataItem>))
+                if (widgetManager.HoveredControl is IClickable)
                 {
                     cursor.SetCursorType(CursorType.Pointing);
                 }

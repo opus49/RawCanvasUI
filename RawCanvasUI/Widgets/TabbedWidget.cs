@@ -13,7 +13,6 @@ namespace RawCanvasUI.Widgets
     {
         private readonly string activeButtonTextureName;
         private readonly string inactiveButtonTextureName;
-        private string activeTabTitle = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TabbedWidget"/> class.
@@ -52,10 +51,15 @@ namespace RawCanvasUI.Widgets
         /// <param name="tabTitle">The title to use for the tab.</param>
         public void AddWidget(IWidget widget, string tabTitle)
         {
+            // TODO: this could be cleaned up
             this.Add(widget);
             if (this.Widgets.Count == 0)
             {
-                this.activeTabTitle = tabTitle;
+                widget.IsVisible = true;
+            }
+            else
+            {
+                widget.IsVisible = false;
             }
 
             this.Widgets[tabTitle] = widget;
@@ -77,20 +81,27 @@ namespace RawCanvasUI.Widgets
             {
                 g.DrawTexture(this.Texture, this.Bounds);
                 this.TabButtons.ForEach(button => button.Draw(g));
-                if (this.Widgets.TryGetValue(this.activeTabTitle, out IWidget widget))
-                {
-                    widget.Draw(g);
-                }
+                this.Widgets.Values.Where(x => x.IsVisible).ToList().ForEach(x => x.Draw(g));
             }
         }
 
         /// <inheritdoc />
         public override void OnUpdated(IObservable obj)
         {
-            if (this.Widgets.ContainsKey(obj.Id))
+            if (this.TabButtons.Contains(obj))
             {
                 this.TabButtons.Where(x => x.Id != obj.Id).ToList().ForEach(x => x.IsActive = false);
-                this.activeTabTitle = obj.Id;
+                foreach (KeyValuePair<string, IWidget> entry in this.Widgets)
+                {
+                    if (entry.Key == obj.Id)
+                    {
+                        entry.Value.IsVisible = true;
+                    }
+                    else
+                    {
+                        entry.Value.IsVisible = false;
+                    }
+                }
             }
         }
 

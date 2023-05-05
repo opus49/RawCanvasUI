@@ -17,7 +17,7 @@ namespace RawCanvasUI.Util
         {
             foreach (var item in container.Items)
             {
-                if (item is IControl control && control.IsEnabled)
+                if (item is IControl control && control.IsEnabled && container.IsVisible)
                 {
                     yield return control;
                 }

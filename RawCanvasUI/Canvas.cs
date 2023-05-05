@@ -183,6 +183,7 @@ namespace RawCanvasUI
             if (isEnabled != this.isControlsEnabled)
             {
                 NativeFunction.Natives.x8D32347D6D4C40A2(Game.LocalPlayer, isEnabled, 0);
+                NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(isEnabled);
                 this.isControlsEnabled = isEnabled;
             }
         }

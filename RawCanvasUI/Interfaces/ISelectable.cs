@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RawCanvasUI.Mouse;
+using System.Collections.Generic;
 
 namespace RawCanvasUI.Interfaces
 {
@@ -6,12 +7,12 @@ namespace RawCanvasUI.Interfaces
     /// Represents a container of objects where one can be selected.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ISelectable<T> : IClickable
+    public interface ISelectable : IControl, IObservable
     {
         /// <summary>
         /// The list of items belonging to the selectable.
         /// </summary>
-        List<T> Items { get; }
+        List<IDataItem> Items { get; }
 
         /// <summary>
         /// Gets the selected index.
@@ -21,13 +22,13 @@ namespace RawCanvasUI.Interfaces
         /// <summary>
         /// Gets the selected item.
         /// </summary>
-        T SelectedItem { get; }
+        IDataItem SelectedItem { get; }
 
         /// <summary>
         /// Adds a selectable item.
         /// </summary>
         /// <param name="item"></param>
-        void Add(T item);
+        void Add(IDataItem item);
 
         /// <summary>
         /// Removes all items.
@@ -38,6 +39,12 @@ namespace RawCanvasUI.Interfaces
         /// Removes an item.
         /// </summary>
         /// <param name="item"></param>
-        void Remove(T item);
+        void Remove(IDataItem item);
+
+        /// <summary>
+        /// Select an item at the given cursor position.
+        /// </summary>
+        /// <param name="cursor"></param>
+        void Select(Cursor cursor);
     }
 }
