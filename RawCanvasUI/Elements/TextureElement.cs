@@ -2,7 +2,6 @@
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Util;
 using Rage;
-using RawCanvasUI.Elements;
 
 namespace RawCanvasUI.Elements
 {
@@ -11,7 +10,6 @@ namespace RawCanvasUI.Elements
     /// </summary>
     public abstract class TextureElement : BaseElement, IGeometry
     {
-        private readonly bool isDynamic;
         private Texture texture = null;
         private string textureName;
 
@@ -26,7 +24,6 @@ namespace RawCanvasUI.Elements
             this.textureName = textureName;
             this.Width = width;
             this.Height = height;
-            this.isDynamic = width == 0 && height == 0;
         }
 
         /// <inheritdoc/>
@@ -44,7 +41,6 @@ namespace RawCanvasUI.Elements
                     if (this.Parent != null && this.textureName != string.Empty)
                     {
                         this.texture = TextureHandler.Get(this.Parent.UUID, this.textureName);
-                        this.UpdateBounds();
                     }
                 }
 
@@ -65,6 +61,10 @@ namespace RawCanvasUI.Elements
             {
                 g.DrawTexture(this.Texture, this.Bounds);
             }
+            else
+            {
+                g.DrawRectangle(this.Bounds, Color.LimeGreen);
+            }
         }
 
         /// <summary>
@@ -80,21 +80,13 @@ namespace RawCanvasUI.Elements
         /// <inheritdoc/>
         public override void UpdateBounds()
         {
-            if (this.Texture == null || this.Parent == null)
+            if (this.Parent != null)
             {
-                return;
+                var x = this.Parent.Bounds.X + (this.Position.X * this.Parent.Scale.Height);
+                var y = this.Parent.Bounds.Y + (this.Position.Y * this.Parent.Scale.Height);
+                var size = new SizeF(this.Width * this.Parent.Scale.Height, this.Height * this.Parent.Scale.Height);
+                this.Bounds = new RectangleF(new PointF(x, y), size);
             }
-
-            if (this.isDynamic)
-            {
-                this.Height = this.Texture.Size.Height;
-                this.Width = this.Texture.Size.Width;
-            }
-
-            var x = this.Parent.Bounds.X + (this.Position.X * this.Parent.Scale.Height);
-            var y = this.Parent.Bounds.Y + (this.Position.Y * this.Parent.Scale.Height);
-            var size = new SizeF(this.Width * this.Parent.Scale.Height, this.Height * this.Parent.Scale.Height);
-            this.Bounds = new RectangleF(new PointF(x, y), size);
         }
     }
 }

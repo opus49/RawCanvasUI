@@ -11,7 +11,6 @@ namespace RawCanvasUI.Util
     internal static class TextureHandler
     {
         private static readonly Dictionary<string, Dictionary<string, Texture>> Textures = new Dictionary<string, Dictionary<string, Texture>>();
-        private static readonly Dictionary<string, List<string>> Blacklist = new Dictionary<string, List<string>>();
 
         /// <summary>
         /// Loads textures from the specified directory path.
@@ -65,17 +64,6 @@ namespace RawCanvasUI.Util
                 {
                     return texture;
                 }
-            }
-
-            if (!Blacklist.ContainsKey(uuid))
-            {
-                Blacklist[uuid] = new List<string>();
-            }
-
-            if (!Blacklist[uuid].Contains(name))
-            {
-                Blacklist[uuid].Add(name);
-                Logging.Warning($"could not load texture {name} for canvas {uuid}");
             }
 
             return null;

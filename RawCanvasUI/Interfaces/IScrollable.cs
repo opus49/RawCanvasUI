@@ -8,6 +8,11 @@ namespace RawCanvasUI.Interfaces
     public interface IScrollable : IControl
     {
         /// <summary>
+        /// Gets or sets a value indicating whether or not auto scroll is enabled.
+        /// </summary>
+        bool IsAutoScrollEnabled { get; set; }
+
+        /// <summary>
         /// Gets a value indicating whether or not the IScrollable is being drag scrolled.
         /// </summary>
         bool IsDragScrolling { get; }

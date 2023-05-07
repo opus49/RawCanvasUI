@@ -13,6 +13,8 @@ namespace RawCanvasUI.Widgets
     {
         private readonly string activeButtonTextureName;
         private readonly string inactiveButtonTextureName;
+        private readonly int tabWidth;
+        private readonly int tabHeight;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TabbedWidget"/> class.
@@ -20,13 +22,15 @@ namespace RawCanvasUI.Widgets
         /// <param name="widgetTextureName">The name of the texture for the widget background.</param>
         /// <param name="activeButtonTextureName">The name of the texture for the active button.</param>
         /// <param name="inactiveButtonTextureName">The name of the texture for the inactive button.</param>
-        public TabbedWidget(string widgetTextureName, string activeButtonTextureName, string inactiveButtonTextureName)
-            : base(widgetTextureName)
+        public TabbedWidget(string widgetTextureName, int width, int height, int tabWidth, int tabHeight, string activeButtonTextureName, string inactiveButtonTextureName)
+            : base(widgetTextureName, width, height)
         {
             this.activeButtonTextureName = activeButtonTextureName;
             this.inactiveButtonTextureName = inactiveButtonTextureName;
-            this.Width = 0;
-            this.Height = 0;
+            this.Width = width;
+            this.Height = height;
+            this.tabWidth = tabWidth;
+            this.tabHeight = tabHeight;
         }
 
         /// <summary>
@@ -63,7 +67,7 @@ namespace RawCanvasUI.Widgets
             }
 
             this.Widgets[tabTitle] = widget;
-            var button = new ToggledButton(tabTitle, this.activeButtonTextureName, this.inactiveButtonTextureName, tabTitle, true);
+            var button = new ToggledButton(tabTitle, this.tabWidth, this.tabHeight, this.activeButtonTextureName, this.inactiveButtonTextureName, tabTitle, true);
             this.Add(button);
             button.AddObserver(this);
             if (this.Widgets.Count == 1)
@@ -80,9 +84,14 @@ namespace RawCanvasUI.Widgets
             if (this.Texture != null)
             {
                 g.DrawTexture(this.Texture, this.Bounds);
-                this.TabButtons.ForEach(button => button.Draw(g));
-                this.Widgets.Values.Where(x => x.IsVisible).ToList().ForEach(x => x.Draw(g));
             }
+            else
+            {
+                g.DrawRectangle(this.Bounds, Color.LimeGreen);
+            }
+
+            this.TabButtons.ForEach(button => button.Draw(g));
+            this.Widgets.Values.Where(x => x.IsVisible).ToList().ForEach(x => x.Draw(g));
         }
 
         /// <inheritdoc />
@@ -129,7 +138,7 @@ namespace RawCanvasUI.Widgets
                 }
                 else
                 {
-                    button.MoveTo(new Point(this.TabButtons[i - 1].Position.X + this.TabButtons[i - 1].Width + this.TabOffset.X, this.TabOffset.Y));
+                    button.MoveTo(new Point(this.TabButtons[i - 1].Position.X + this.TabButtons[i - 1].Width, this.TabOffset.Y));
                 }
             }
         }

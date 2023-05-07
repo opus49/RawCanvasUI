@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using RawCanvasUI.Interfaces;
-using RawCanvasUI.Elements;
 
 namespace RawCanvasUI.Elements
 {
@@ -10,13 +9,13 @@ namespace RawCanvasUI.Elements
     public abstract class TextElement : BaseElement, IText
     {
         /// <inheritdoc/>
-        public Color FontColor { get; set; } = Color.Black;
+        public Color FontColor { get; set; }
 
         /// <inheritdoc/>
-        public string FontFamily { get; set; } = "Lucida Console";
+        public string FontFamily { get; set; } 
 
         /// <inheritdoc/>
-        public float FontSize { get; set; } = 14f;
+        public float FontSize { get; set; }
 
         /// <inheritdoc/>
         public float ScaledFontSize { get; protected set; } = 14f;

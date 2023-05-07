@@ -18,7 +18,7 @@ namespace RawCanvasUI.Mouse
         /// Initializes a new instance of the <see cref="Cursor"/> class.
         /// </summary>
         public Cursor()
-            : base("cursor/default.png")
+            : base("cursor/default.png", 16, 16)
         {
             this.MouseStatus = MouseStatus.Up;
             this.ScrollWheelStatus = ScrollWheelStatus.None;

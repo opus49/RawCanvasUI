@@ -48,6 +48,10 @@ namespace RawCanvasUI.Elements
         {
             this.Items.Add(item);
             this.Lines.Add(item.ToString());
+            if (IsAutoScrollEnabled)
+            {
+                this.ScrollTo(this.Lines.Count - this.MaxLines);
+            }
         }
 
         /// <inheritdoc/>
@@ -81,7 +85,7 @@ namespace RawCanvasUI.Elements
                     g.DrawRectangle(this.GetLineBounds(i - this.FirstLineIndex), this.HighlightBackgroundColor);
                 }
 
-                g.DrawText(this.Lines[i].ToString(), this.FontFamily, this.ScaledFontSize, linePosition, i == this.SelectedIndex ? this.HighlightFontColor : this.FontColor);
+                g.DrawText(this.Lines[i].ToString(), this.FontFamily, this.ScaledFontSize, linePosition, i == this.SelectedIndex ? this.HighlightFontColor : this.FontColor, this.Bounds);
             }
 
             if (this.ScrollbarWidth > 0)

@@ -27,27 +27,6 @@ namespace RawCanvasUI.Elements
             this.Text = text;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TextureButton"/> class.
-        /// </summary>
-        /// <param name="id">The unique identifier for the button.</param>
-        /// <param name="textureName">The texture name for the button.</param>
-        /// <param name="text">The texts for the label on the button..</param>
-        public TextureButton(string id, string textureName, string text)
-            : this(id, textureName, 0, 0, text)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TextureButton"/> class.
-        /// </summary>
-        /// <param name="id">The unique identifier for the button.</param>
-        /// <param name="textureName">The texture name for the button.</param>
-        public TextureButton(string id, string textureName)
-            : this(id, textureName, string.Empty)
-        {
-        }
-
         /// <inheritdoc/>
         public Color FontColor { get; set; } = Color.White;
 

@@ -43,6 +43,9 @@ namespace RawCanvasUI.Elements
         /// <inheritdoc/>
         public bool IsEnabled { get; set; } = true;
 
+        /// <inheritdoc/>
+        public bool IsAutoScrollEnabled { get; set; } = true;
+
         /// <summary>
         /// Gets or sets the lines belonging to the text area.
         /// </summary>
@@ -92,12 +95,13 @@ namespace RawCanvasUI.Elements
         /// Add a line of text to the text box.
         /// </summary>
         /// <param name="text">The line of text to add.</param>
+        /// <param name="scrollEnd">Whether or not to scroll to the end when adding a line.</param>
         public virtual void Add(string text)
         {
             this.Lines.Add(text);
-            if (this.Lines.Count > this.MaxLines)
+            if (this.IsAutoScrollEnabled && this.Lines.Count > this.MaxLines)
             {
-                this.FirstLineIndex = this.Lines.Count - this.MaxLines;
+                this.ScrollTo(this.Lines.Count);
             }
         }
 
@@ -149,7 +153,7 @@ namespace RawCanvasUI.Elements
                     break;
                 }
 
-                g.DrawText(this.Lines[i], this.FontFamily, this.ScaledFontSize, new PointF(this.TextPosition.X, this.TextPosition.Y + ((i - this.FirstLineIndex) * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap)))), this.FontColor);
+                g.DrawText(this.Lines[i], this.FontFamily, this.ScaledFontSize, new PointF(this.TextPosition.X, this.TextPosition.Y + ((i - this.FirstLineIndex) * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap)))), this.FontColor, this.Bounds);
             }
 
             if (this.ScrollbarWidth > 0)
@@ -175,6 +179,11 @@ namespace RawCanvasUI.Elements
                     this.FirstLineIndex++;
                 }
             }
+        }
+
+        public virtual void ScrollTo(int line)
+        {
+            this.FirstLineIndex = line < 0 ? 0 : System.Math.Min(line, this.Lines.Count - this.MaxLines);
         }
 
         /// <inheritdoc/>

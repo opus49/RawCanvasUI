@@ -16,12 +16,14 @@ namespace RawCanvasUI.Elements
     /// Initializes a new instance of the <see cref="ToggledButton"/> class.
     /// </summary>
     /// <param name="id">The unique id of the button.</param>
+    /// <param name="width">The width of the button.</param>
+    /// <param name="height">The height of the button.</param>
     /// <param name="activeTextureName">The texture name for the button in an active state.</param>
     /// <param name="inactiveTextureName">The texture name for the button in an inactive state.</param>
     /// <param name="text">The text to display on the button.</param>
     /// <param name="isActivateOnly">When set to true, the button can only be pressed into the on state, it cannot be toggled off by clicking.</param>
-    public ToggledButton(string id, string activeTextureName, string inactiveTextureName, string text, bool isActivateOnly = false)
-        : base(id, inactiveTextureName, text)
+    public ToggledButton(string id, int width, int height, string activeTextureName, string inactiveTextureName, string text, bool isActivateOnly = false)
+        : base(id, inactiveTextureName, width, height, text)
     {
         this.activeTextureName = activeTextureName;
         this.inactiveTextureName = inactiveTextureName;

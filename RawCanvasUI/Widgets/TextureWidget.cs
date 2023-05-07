@@ -1,6 +1,6 @@
 ﻿using Rage;
 using RawCanvasUI.Util;
-using RawCanvasUI.Widgets;
+using System.Drawing;
 
 namespace RawCanvasUI.Widgets
 {
@@ -9,7 +9,6 @@ namespace RawCanvasUI.Widgets
     /// </summary>
     public class TextureWidget : BaseWidget
     {
-        private readonly bool isDynamic;
         private Texture texture = null;
         private string textureName;
 
@@ -24,16 +23,6 @@ namespace RawCanvasUI.Widgets
             this.Width = width;
             this.Height = height;
             this.textureName = textureName;
-            this.isDynamic = height == 0 && width == 0;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TextureWidget"/> class with dimensions based on the underyling texture.
-        /// </summary>
-        /// <param name="textureName">The name of the texture.</param>
-        public TextureWidget(string textureName)
-            : this(textureName, 0, 0)
-        {
         }
 
         /// <summary>
@@ -53,11 +42,15 @@ namespace RawCanvasUI.Widgets
         }
 
         /// <inheritdoc/>
-        public override void Draw(Graphics g)
+        public override void Draw(Rage.Graphics g)
         {
             if (this.Texture != null)
             {
                 g.DrawTexture(this.Texture, this.Bounds);
+            }
+            else
+            {
+                g.DrawRectangle(this.Bounds, Color.LimeGreen);
             }
 
             base.Draw(g);
@@ -71,18 +64,6 @@ namespace RawCanvasUI.Widgets
         {
             this.textureName = textureName;
             this.texture = null;
-        }
-
-        /// <inheritdoc/>
-        public override void UpdateBounds()
-        {
-            if (this.isDynamic && this.Texture != null)
-            {
-                this.Height = this.Texture.Size.Height;
-                this.Width = this.Texture.Size.Width;
-            }
-
-            base.UpdateBounds();
         }
     }
 }
