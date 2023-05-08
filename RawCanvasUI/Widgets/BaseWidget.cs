@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
+using RawCanvasUI.Style;
 
 namespace RawCanvasUI.Widgets
 {
@@ -53,6 +56,9 @@ namespace RawCanvasUI.Widgets
         }
 
         /// <inheritdoc/>
+        public string StyleName { get; set; } = string.Empty;
+
+        /// <inheritdoc/>
         public string UUID
         {
             get
@@ -80,6 +86,37 @@ namespace RawCanvasUI.Widgets
             if (item is IObservable observable)
             {
                 observable.AddObserver(this);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void ApplyStyle(Stylesheet stylesheet)
+        {
+            this.Items.ForEach(x => x.ApplyStyle(stylesheet));
+            if (string.IsNullOrEmpty(this.StyleName))
+            {
+                return;
+            }
+
+            var styleProperties = stylesheet.GetStyle(this.StyleName);
+            if (styleProperties != null)
+            {
+                foreach (var property in styleProperties)
+                {
+                    var propertyInfo = this.GetType().GetProperty(property.Key);
+                    if (propertyInfo != null)
+                    {
+                        try
+                        {
+                            var parsedValue = TypeDescriptor.GetConverter(propertyInfo.PropertyType).ConvertFromString(property.Value);
+                            propertyInfo.SetValue(this, parsedValue);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logging.Error($"Failed to parse value {property.Value} for property {property.Key}", ex);
+                        }
+                    }
+                }
             }
         }
 

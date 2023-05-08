@@ -1,5 +1,6 @@
 ﻿using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
+using RawCanvasUI.Style;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -22,12 +23,12 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the background color of the selected item.
         /// </summary>
-        public Color HighlightBackgroundColor { get; set; } = Color.Black;
+        public Color HighlightBackgroundColor { get; set; } = Defaults.HighlightBackgroundColor;
 
         /// <summary>
         /// Gets or sets the font color of the selected item.
         /// </summary>
-        public Color HighlightFontColor { get; set; } = Color.White;
+        public Color HighlightFontColor { get; set; } = Defaults.HighlightFontColor;
 
         /// <inheritdoc/>
         public List<IDataItem> Items { get; protected set; } = new List<IDataItem>();

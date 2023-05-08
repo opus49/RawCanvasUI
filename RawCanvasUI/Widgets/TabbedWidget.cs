@@ -68,6 +68,7 @@ namespace RawCanvasUI.Widgets
 
             this.Widgets[tabTitle] = widget;
             var button = new ToggledButton(tabTitle, this.tabWidth, this.tabHeight, this.activeButtonTextureName, this.inactiveButtonTextureName, tabTitle, true);
+            button.StyleName = this.StyleName;
             this.Add(button);
             button.AddObserver(this);
             if (this.Widgets.Count == 1)

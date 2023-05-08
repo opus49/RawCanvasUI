@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using RawCanvasUI.Style;
+using System.Drawing;
 
 namespace RawCanvasUI.Elements
 {
@@ -38,7 +39,7 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the color of the text box.
         /// </summary>
-        public Color BackgroundColor { get; set; }
+        public Color BackgroundColor { get; set; } = Defaults.BackgroundColor;
 
         /// <summary>
         /// Gets or sets the screen boundary for the border.
@@ -48,12 +49,12 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the border color.
         /// </summary>
-        public Color BorderColor { get; set; }
+        public Color BorderColor { get; set; } = Defaults.BorderColor;
 
         /// <summary>
         /// Gets or sets the width of the border.
         /// </summary>
-        public float BorderWidth { get; set; }
+        public float BorderWidth { get; set; } = Defaults.BorderWidth;
 
         /// <summary>
         /// Gets or sets the height of the text box.
@@ -63,7 +64,7 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the left padding.
         /// </summary>
-        public float LeftPadding { get; set; }
+        public float LeftPadding { get; set; } = Defaults.LeftPadding;
 
         /// <summary>
         /// Gets or sets the real screen position to draw the text.

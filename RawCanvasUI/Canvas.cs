@@ -103,10 +103,15 @@ namespace RawCanvasUI
             this.SetPlayerControls(false);
         }
 
+        /// <summary>
+        /// Loads the canvas.
+        /// </summary>
         /// <param name="texturePath">The fully qualified path to the textures.</param>
-        public void Load(string texturePath)
+        /// <param name="stylesheetPath">The fully qualified path to the textures.</param>
+        public void Load(string texturePath, string stylesheetPath)
         {
             TextureHandler.Load(this.UUID, texturePath);
+            this.widgetManager.ApplyStyle(stylesheetPath);
             this.UpdateBounds();
             Rage.Game.FrameRender -= this.Game_FrameRender;
             Rage.Game.RawFrameRender -= this.Game_RawFrameRender;

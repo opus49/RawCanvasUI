@@ -1,4 +1,5 @@
-﻿using RawCanvasUI.Widgets;
+﻿using RawCanvasUI.Style;
+using RawCanvasUI.Widgets;
 using System.Drawing;
 
 namespace RawCanvasUI.Widgets
@@ -22,7 +23,7 @@ namespace RawCanvasUI.Widgets
         /// <summary>
         /// Gets or sets the background color of the rectangle.
         /// </summary>
-        public Color BackgroundColor { get; set; } = Color.FromArgb(128, 64, 64, 64);
+        public Color BackgroundColor { get; set; } = Defaults.BackgroundColor;
 
         /// <inheritdoc/>
         public override void Draw(Rage.Graphics g)

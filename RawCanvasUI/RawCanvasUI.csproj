@@ -81,6 +81,8 @@
     <Compile Include="Mouse\MouseState.cs" />
     <Compile Include="Mouse\MouseUpState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Style\Defaults.cs" />
+    <Compile Include="Style\Stylesheet.cs" />
     <Compile Include="Util\ControlFinder.cs" />
     <Compile Include="Util\TextureHandler.cs" />
     <Compile Include="Util\WidgetManager.cs" />

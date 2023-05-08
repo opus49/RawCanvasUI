@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
+using RawCanvasUI.Style;
 
 namespace RawCanvasUI.Elements
 {
@@ -54,7 +55,7 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the line gap used in between lines.
         /// </summary>
-        public float LineGap { get; set; } = 1.2f;
+        public float LineGap { get; set; } = Defaults.LineGap;
 
         /// <summary>
         /// Gets or sets the maximum number of lines that can be displayed in the text area.
@@ -74,7 +75,7 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the scrollbar inner color.
         /// </summary>
-        public Color ScrollbarInnerColor { get; set; } = Color.FromArgb(92, 92, 92);
+        public Color ScrollbarInnerColor { get; set; } = Defaults.ScrollbarInnerColor;
 
         /// <summary>
         /// Gets or sets the real screen bounds of the outer scrollbar.
@@ -84,12 +85,12 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the scrollbar outer color.
         /// </summary>
-        public Color ScrollbarOuterColor { get; set; } = Color.FromArgb(0, 0, 0);
+        public Color ScrollbarOuterColor { get; set; } = Defaults.ScrollbarOuterColor;
 
         /// <summary>
         /// Gets or sets the width of the scrollbar.
         /// </summary>
-        public float ScrollbarWidth { get; set; } = 8f;
+        public float ScrollbarWidth { get; set; } = Defaults.ScrollbarWidth;
 
         /// <summary>
         /// Add a line of text to the text box.

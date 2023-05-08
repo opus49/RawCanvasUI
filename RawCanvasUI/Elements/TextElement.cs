@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using RawCanvasUI.Interfaces;
+using RawCanvasUI.Style;
 
 namespace RawCanvasUI.Elements
 {
@@ -9,16 +10,16 @@ namespace RawCanvasUI.Elements
     public abstract class TextElement : BaseElement, IText
     {
         /// <inheritdoc/>
-        public Color FontColor { get; set; }
+        public Color FontColor { get; set; } = Defaults.FontColor;
 
         /// <inheritdoc/>
-        public string FontFamily { get; set; } 
+        public string FontFamily { get; set; } = Defaults.FontFamily;
 
         /// <inheritdoc/>
-        public float FontSize { get; set; }
+        public float FontSize { get; set; } = Defaults.FontSize;
 
         /// <inheritdoc/>
-        public float ScaledFontSize { get; protected set; } = 14f;
+        public float ScaledFontSize { get; protected set; } = Defaults.FontSize;
 
         /// <inheritdoc/>
         public string Text { get; set; } = string.Empty;

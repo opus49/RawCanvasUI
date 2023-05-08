@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
+using RawCanvasUI.Style;
 
 namespace RawCanvasUI.Util
 {
@@ -32,6 +34,24 @@ namespace RawCanvasUI.Util
         /// Gets or sets the widget that is currently being pressed on by the mouse.
         /// </summary>
         public IWidget PressedWidget { get; set; } = null;
+
+        /// <summary>
+        /// Applies styles derived from the stylesheet.
+        /// </summary>
+        /// <param name="stylesheetPath">The path to the XML stylesheet.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        public void ApplyStyle(string stylesheetPath)
+        {
+            try
+            {
+                var stylesheet = new Stylesheet(stylesheetPath);
+                this.widgets.ForEach(x => x.ApplyStyle(stylesheet));
+            }
+            catch (Exception ex)
+            {
+                Logging.Error($"could not load stylesheet from {stylesheetPath}", ex);
+            }
+        }
 
         /// <summary>
         /// Add a widget to the manager.

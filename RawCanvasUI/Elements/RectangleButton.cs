@@ -2,6 +2,7 @@
 using System.Drawing;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
+using RawCanvasUI.Style;
 
 namespace RawCanvasUI.Elements
 {
@@ -31,17 +32,17 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Gets or sets the button's background color.
         /// </summary>
-        public Color BackgroundColor { get; set; } = Color.Black;
+        public Color BackgroundColor { get; set; } = Defaults.BackgroundColor;
 
         /// <summary>
         /// Gets or sets the border color.
         /// </summary>
-        public Color BorderColor { get; set; } = Color.Black;
+        public Color BorderColor { get; set; } = Defaults.BorderColor;
 
         /// <summary>
         /// Gets or sets the border width.
         /// </summary>
-        public float BorderWidth { get; set; } = 0f;
+        public float BorderWidth { get; set; } = Defaults.BorderWidth;
 
         /// <inheritdoc/>
         public int Height { get; protected set; }

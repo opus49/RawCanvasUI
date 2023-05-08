@@ -2,6 +2,7 @@
 using System.Drawing;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
+using RawCanvasUI.Style;
 
 namespace RawCanvasUI.Elements
 {
@@ -28,19 +29,19 @@ namespace RawCanvasUI.Elements
         }
 
         /// <inheritdoc/>
-        public Color FontColor { get; set; } = Color.White;
+        public Color FontColor { get; set; } = Defaults.FontColor;
 
         /// <inheritdoc/>
-        public string FontFamily { get; set; } = "Lucida Console";
+        public string FontFamily { get; set; } = Defaults.FontFamily;
 
         /// <inheritdoc/>
-        public float FontSize { get; set; } = 14f;
+        public float FontSize { get; set; } = Defaults.FontSize;
 
         /// <inheritdoc/>
         public string Id { get; }
 
         /// <inheritdoc/>
-        public float ScaledFontSize { get; protected set; } = 14f;
+        public float ScaledFontSize { get; protected set; } = Defaults.FontSize;
 
         /// <inheritdoc/>
         public string Text { get; set; } = string.Empty;
