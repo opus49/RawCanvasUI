@@ -6,20 +6,19 @@ using System.Drawing;
 
 namespace RawCanvasUI.Elements
 {
-    public class DataGrid : TextArea, ISelectable
+    public class DataView<T> : TextArea, ISelectable<T>
     {
         private readonly List<IObserver> observers = new List<IObserver>();
 
-        public DataGrid(string id, int x, int y, int width, int height) 
+        public DataView(string id, int x, int y, int width, int height) 
             : base(x, y, width, height)
         {
             this.Id = id;
         }
 
         /// <inheritdoc/>
-        public string Id { get; protected set; } = string.Empty;
+        public string Id { get; }
 
-        /// <summary>
         /// <summary>
         /// Gets or sets the background color of the selected item.
         /// </summary>
@@ -31,41 +30,15 @@ namespace RawCanvasUI.Elements
         public Color HighlightFontColor { get; set; } = Defaults.HighlightFontColor;
 
         /// <inheritdoc/>
-        public List<IDataItem> Items { get; protected set; } = new List<IDataItem>();
-
-        /// <inheritdoc/>
         public int SelectedIndex { get; protected set; } = -1;
 
         /// <inheritdoc/>
-        public IDataItem SelectedItem { get; protected set; } = default;
-
-        public override void Add(string text)
-        {
-            throw new System.Exception("you cannot add text to a data grid!");
-        }
-
-        /// <inheritdoc/>
-        public virtual void Add(IDataItem item)
-        {
-            this.Items.Add(item);
-            this.Lines.Add(item.ToString());
-            if (IsAutoScrollEnabled)
-            {
-                this.ScrollTo(this.Lines.Count - this.MaxLines);
-            }
-        }
+        public T SelectedItem { get; set; }
 
         /// <inheritdoc/>
         public void AddObserver(IObserver observer)
         {
             this.observers.Add(observer);
-        }
-
-        /// <inheritdoc/>
-        public void Clear()
-        {
-            this.Items.Clear();
-            this.Lines.Clear();
         }
 
         /// <inheritdoc/>
@@ -95,11 +68,6 @@ namespace RawCanvasUI.Elements
             }
         }
 
-        public void Remove(IDataItem item)
-        {
-            this.Items.Remove(item);
-        }
-
         /// <inheritdoc/>
         public void RemoveObserver(IObserver observer)
         {
@@ -115,7 +83,6 @@ namespace RawCanvasUI.Elements
                 if (lineBounds.Contains(new PointF(cursor.Bounds.X, cursor.Bounds.Y)))
                 {
                     this.SelectedIndex = i;
-                    this.SelectedItem = this.Items[i];
                     this.observers.ForEach(x => x.OnUpdated(this));
                     return;
                 }

@@ -48,11 +48,13 @@
   <ItemGroup>
     <Compile Include="Canvas.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Elements\DataGrid.cs" />
+    <Compile Include="Controllers\DataViewController.cs" />
+    <Compile Include="Elements\DataView.cs" />
     <Compile Include="Enum.cs" />
     <Compile Include="Interfaces\IDataItem.cs" />
     <Compile Include="Interfaces\ISelectable.cs" />
     <Compile Include="Logging.cs" />
+    <Compile Include="Models\DataModel.cs" />
     <Compile Include="Mouse\Cursor.cs" />
     <Compile Include="Elements\BaseElement.cs" />
     <Compile Include="Elements\Label.cs" />
@@ -91,7 +93,9 @@
     <Compile Include="Widgets\TabbedWidget.cs" />
     <Compile Include="Widgets\TextureWidget.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Events\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
