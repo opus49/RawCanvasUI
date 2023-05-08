@@ -6,11 +6,17 @@ using System.Drawing;
 
 namespace RawCanvasUI.Elements
 {
-    public class DataView<T> : TextArea, ISelectable<T>
+    public class DataListView<T> : TextArea, IObservable, IDataView<T>, ISelectable<T>
+        where T : class
     {
         private readonly List<IObserver> observers = new List<IObserver>();
 
-        public DataView(string id, int x, int y, int width, int height) 
+        internal delegate void OnSelectionEventHandler(DataListView<T> view);
+        internal event OnSelectionEventHandler OnSelection;
+
+        private T selectedItem = null;
+
+        public DataListView(string id, int x, int y, int width, int height) 
             : base(x, y, width, height)
         {
             this.Id = id;
@@ -33,7 +39,18 @@ namespace RawCanvasUI.Elements
         public int SelectedIndex { get; protected set; } = -1;
 
         /// <inheritdoc/>
-        public T SelectedItem { get; set; }
+        public T SelectedItem
+        {
+            get => this.selectedItem;
+            set
+            {
+                if (this.selectedItem != value)
+                {
+                    this.selectedItem = value;
+                    this.observers.ForEach(x => x.OnUpdated(this));
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public void AddObserver(IObserver observer)
@@ -83,9 +100,17 @@ namespace RawCanvasUI.Elements
                 if (lineBounds.Contains(new PointF(cursor.Bounds.X, cursor.Bounds.Y)))
                 {
                     this.SelectedIndex = i;
-                    this.observers.ForEach(x => x.OnUpdated(this));
+                    this.OnSelection(this);
                     return;
                 }
+            }
+        }
+
+        public virtual void UpdateItem(int index, T item)
+        {
+            if (index >= 0 && index < this.Lines.Count)
+            {
+                this.Lines[index] = item.ToString();
             }
         }
 

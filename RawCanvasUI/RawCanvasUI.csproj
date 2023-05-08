@@ -49,9 +49,10 @@
     <Compile Include="Canvas.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Controllers\DataViewController.cs" />
-    <Compile Include="Elements\DataView.cs" />
+    <Compile Include="Interfaces\IDataItemView.cs" />
+    <Compile Include="Elements\DataListView.cs" />
     <Compile Include="Enum.cs" />
-    <Compile Include="Interfaces\IDataItem.cs" />
+    <Compile Include="Interfaces\IDataView.cs" />
     <Compile Include="Interfaces\ISelectable.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="Models\DataModel.cs" />

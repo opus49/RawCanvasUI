@@ -8,6 +8,11 @@ namespace RawCanvasUI.Interfaces
     public interface IText
     {
         /// <summary>
+        /// Gets or sets the disabled font color.
+        /// </summary>
+        Color DisabledFontColor { get; set; }
+
+        /// <summary>
         /// Gets or sets the font color.
         /// </summary>
         Color FontColor { get; set; }

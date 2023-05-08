@@ -1,34 +1,42 @@
 ﻿using RawCanvasUI.Elements;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Models;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 
 namespace RawCanvasUI.Controllers
 {
-    public abstract class DataViewController<T> : IObserver
-        where T : INotifyPropertyChanged
+    public abstract class DataViewController<T>
+        where T : class, INotifyPropertyChanged
     {
         private readonly DataModel<T> model;
-        private readonly DataView<T> view;
+        private readonly List<IDataView<T>> views = new List<IDataView<T>>();
 
-        public DataViewController(DataModel<T> model, DataView<T> view)
+        public DataViewController(DataModel<T> model)
         {
             this.model = model;
-            this.view = view;
             this.model.CollectionChanged += this.OnModelChanged;
-            this.view.AddObserver(this);
+            this.model.PropertyChanged += this.OnPropertyChanged;
         }
 
-        public virtual void OnUpdated(IObservable observable)
+        public DataModel<T> Model { get => this.model; }
+
+        public void AddView(IDataView<T> view)
         {
-            if (observable == this.view)
+            this.views.Add(view);
+            if (view is DataListView<T> dataListView)
             {
-                int selectedIndex = this.view.SelectedIndex;
-                if (selectedIndex >= 0 && selectedIndex < this.model.Items.Count)
-                {
-                    this.view.SelectedItem = this.model.Items[selectedIndex];
-                }
+                dataListView.OnSelection += this.OnDataListViewSelection;
+            }
+        }
+
+        protected void OnDataListViewSelection(DataListView<T> view) 
+        {
+            if (view.SelectedIndex >= 0 && view.SelectedIndex < this.model.Items.Count)
+            {
+                view.SelectedItem = this.model.Items[view.SelectedIndex];
             }
         }
 
@@ -39,22 +47,24 @@ namespace RawCanvasUI.Controllers
                 case NotifyCollectionChangedAction.Add:
                     foreach (T item in e.NewItems)
                     {
-                        this.view.Add(item.ToString());
+                        int index = this.model.Items.IndexOf(item);
+                        this.views.OfType<DataListView<T>>().ToList().ForEach(x => x.Add(item.ToString()));
+                        this.views.OfType<IDataItemView<T>>().ToList().ForEach(x => x.NewItem(index, item));
                     }
-                    break;
-
-                case NotifyCollectionChangedAction.Replace:
-                    this.view.Lines[e.NewStartingIndex] = e.NewItems[0].ToString();
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    this.view.ClearText();
-                    foreach (T item in this.model.Items)
-                    {
-                        this.view.Add(item.ToString());
-                    }
+                    this.views.OfType<DataListView<T>>().ToList().ForEach(x => x.ClearText());
+                    this.views.OfType<IDataItemView<T>>().ToList().ForEach(x => x.ClearItem());
                     break;
             }
+        }
+
+        protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var item = (T)sender;
+            var index = this.Model.Items.IndexOf(item);
+            this.views.OfType<IDataView<T>>().ToList().ForEach(x => x.UpdateItem(index, item));
         }
     }
 }

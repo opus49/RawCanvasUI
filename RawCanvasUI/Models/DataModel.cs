@@ -4,12 +4,13 @@ using System.ComponentModel;
 
 namespace RawCanvasUI.Models
 {
-    public abstract class DataModel<T> : INotifyCollectionChanged
+    public abstract class DataModel<T> : INotifyCollectionChanged, INotifyPropertyChanged
         where T : INotifyPropertyChanged
     {
         private readonly List<T> items = new List<T>();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public List<T> Items
         {
@@ -25,15 +26,14 @@ namespace RawCanvasUI.Models
 
         public virtual void Clear()
         {
+            this.items.ForEach(x => x.PropertyChanged -= this.OnItemPropertyChanged);
             this.items.Clear();
             this.RaiseCollectionChangedEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         protected virtual void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var item = (T)sender;
-            var index = this.items.IndexOf(item);
-            this.RaiseCollectionChangedEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, index));
+            this.PropertyChanged?.Invoke(sender, e);
         }
 
         protected virtual void RaiseCollectionChangedEvent(NotifyCollectionChangedEventArgs e)

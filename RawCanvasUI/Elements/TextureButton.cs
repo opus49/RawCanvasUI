@@ -29,6 +29,9 @@ namespace RawCanvasUI.Elements
         }
 
         /// <inheritdoc/>
+        public Color DisabledFontColor { get; set; } = Defaults.DisabledFontColor;
+
+        /// <inheritdoc/>
         public Color FontColor { get; set; } = Defaults.FontColor;
 
         /// <inheritdoc/>
@@ -90,7 +93,7 @@ namespace RawCanvasUI.Elements
             base.Draw(g);
             if (this.Text != string.Empty)
             {
-                g.DrawText(this.Text, this.FontFamily, this.ScaledFontSize, this.TextPosition, this.FontColor, this.Bounds);
+                g.DrawText(this.Text, this.FontFamily, this.ScaledFontSize, this.TextPosition, this.IsEnabled ? this.FontColor : this.DisabledFontColor, this.Bounds);
             }
         }
 

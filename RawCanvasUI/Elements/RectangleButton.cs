@@ -26,7 +26,6 @@ namespace RawCanvasUI.Elements
             this.Width = width;
             this.Height = height;
             this.Text = text;
-            this.FontColor = Color.White;
         }
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace RawCanvasUI.Elements
             }
 
             g.DrawRectangle(this.Bounds, this.BackgroundColor);
-            g.DrawText(this.Text, this.FontFamily, this.ScaledFontSize, this.TextPosition, this.FontColor);
+            g.DrawText(this.Text, this.FontFamily, this.ScaledFontSize, this.TextPosition, this.IsEnabled ? this.FontColor : this.DisabledFontColor);
         }
 
         /// <inheritdoc/>

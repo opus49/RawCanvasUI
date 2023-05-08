@@ -10,6 +10,9 @@ namespace RawCanvasUI.Elements
     public abstract class TextElement : BaseElement, IText
     {
         /// <inheritdoc/>
+        public Color DisabledFontColor { get; set; } = Defaults.DisabledFontColor;
+
+        /// <inheritdoc/>
         public Color FontColor { get; set; } = Defaults.FontColor;
 
         /// <inheritdoc/>
