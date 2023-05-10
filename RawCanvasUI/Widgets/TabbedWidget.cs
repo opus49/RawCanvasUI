@@ -70,7 +70,6 @@ namespace RawCanvasUI.Widgets
             var button = new ToggledButton(tabTitle, this.tabWidth, this.tabHeight, this.activeButtonTextureName, this.inactiveButtonTextureName, tabTitle, true);
             button.StyleName = this.StyleName;
             this.Add(button);
-            // button.AddObserver(this);
             if (this.Widgets.Count == 1)
             {
                 button.IsActive = true;
@@ -92,8 +91,6 @@ namespace RawCanvasUI.Widgets
             }
 
             base.Draw(g);
-            // this.TabButtons.ForEach(button => button.Draw(g));
-            // this.Widgets.Values.Where(x => x.IsVisible).ToList().ForEach(x => x.Draw(g));
         }
 
         /// <inheritdoc />
