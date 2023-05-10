@@ -12,18 +12,23 @@ namespace RawCanvasUI.Elements
     public class TextureButton : TextureElement, IButton, IText
     {
         private readonly List<IObserver> observers = new List<IObserver>();
+        private readonly string textureName;
+        private readonly string clickedTextureName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TextureButton"/> class.
         /// </summary>
         /// <param name="id">The unique identifier for the button.</param>
-        /// <param name="textureName">The texture name for the button.</param>
         /// <param name="width">The fixed width of the button relative to the canvas.</param>
         /// <param name="height">The fixed height of the button relative to the canvas.</param>
+        /// <param name="textureName">The texture name for the button.</param>
+        /// <param name="clickedTextureName">The texture name for the button to use while being clicked.</param>
         /// <param name="text">The texts for the label on the button..</param>
-        public TextureButton(string id, string textureName, int width, int height, string text)
+        public TextureButton(string id, int width, int height, string textureName, string clickedTextureName, string text)
             : base(textureName, width, height)
         {
+            this.textureName = textureName;
+            this.clickedTextureName = clickedTextureName;
             this.Id = id;
             this.Text = text;
         }
@@ -72,10 +77,12 @@ namespace RawCanvasUI.Elements
         /// <inheritdoc/>
         public virtual void Click(Cursor cursor)
         {
-            foreach (var observer in this.observers)
+            if (this.textureName != this.clickedTextureName)
             {
-                observer.OnUpdated(this);
+                this.SetTextureName(this.clickedTextureName);
             }
+
+            this.UpdateObservers();
         }
 
         /// <inheritdoc/>
@@ -98,6 +105,14 @@ namespace RawCanvasUI.Elements
         }
 
         /// <summary>
+        /// Called when the mouse releases the button.
+        /// </summary>
+        public virtual void Release()
+        {
+            this.SetTextureName(this.textureName);
+        }
+
+        /// <summary>
         /// Removes an observer.
         /// </summary>
         /// <param name="observer">The observer to remove.</param>
@@ -114,6 +129,11 @@ namespace RawCanvasUI.Elements
                 base.UpdateBounds();
                 this.UpdateText(this.Parent.Scale.Height);
             }
+        }
+
+        protected void UpdateObservers()
+        {
+            this.observers.ForEach(x => x.OnUpdated(this));
         }
 
         /// <summary>

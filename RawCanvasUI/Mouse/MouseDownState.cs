@@ -1,4 +1,5 @@
-﻿using RawCanvasUI.Interfaces;
+﻿using RawCanvasUI.Elements;
+using RawCanvasUI.Interfaces;
 using RawCanvasUI.Util;
 
 namespace RawCanvasUI.Mouse
@@ -28,6 +29,10 @@ namespace RawCanvasUI.Mouse
                 if (widgetManager.PressedControl is IScrollable scrollable && scrollable.IsDragScrolling)
                 {
                     scrollable.StopDragScrolling();
+                }
+                else if (widgetManager.PressedControl is TextureButton button)
+                {
+                    button.Release();
                 }
 
                 widgetManager.PressedControl = null;
