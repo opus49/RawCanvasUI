@@ -61,7 +61,11 @@ namespace RawCanvasUI.Elements
         /// <inheritdoc/>
         public override void Draw(Rage.Graphics g)
         {
-            g.DrawRectangle(this.BorderBounds, this.BorderColor);
+            if (this.BorderWidth > 0)
+            {
+                g.DrawRectangle(this.BorderBounds, this.BorderColor);
+            }
+
             g.DrawRectangle(this.Bounds, this.BackgroundColor);
             for (int i = this.FirstLineIndex; i < this.Lines.Count; i++)
             {
@@ -116,8 +120,9 @@ namespace RawCanvasUI.Elements
 
         protected RectangleF GetLineBounds(int index)
         {
+            float leading = Constants.Leading.TryGetValue(this.FontFamily, out float result) ? result : 0.25f;
             PointF linePosition = this.GetLinePosition(index);
-            float y = linePosition.Y - (this.TextSize.Height * this.ScaledLineGap / 2);
+            float y = linePosition.Y - (this.TextSize.Height * this.ScaledLineGap / 2) + (this.TextSize.Height * leading);
             float height = this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap);
             float scrollbarOffset = this.Lines.Count > this.MaxLines ? this.ScrollbarWidth : 0;
             return new RectangleF(this.Bounds.X, y, this.Bounds.Width - scrollbarOffset, height);

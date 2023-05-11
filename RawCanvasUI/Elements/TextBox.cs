@@ -95,7 +95,7 @@ namespace RawCanvasUI.Elements
                 this.Bounds = new RectangleF(screenPosition, scaledSize);
                 this.UpdateBorderBounds(scale);
                 this.UpdateScaledFontSize(scale);
-                this.UpdateTextSize();
+                this.UpdateTextSize(scale);
                 this.UpdateTextPosition(scale);
             }
         }
@@ -122,11 +122,12 @@ namespace RawCanvasUI.Elements
         }
 
         /// <summary>
-        /// Updates the text height.
+        /// Updates the text size.
         /// </summary>
-        protected virtual void UpdateTextSize()
+        /// <param name="scale"></param>
+        protected virtual void UpdateTextSize(float scale)
         {
-            this.TextSize = Rage.Graphics.MeasureText("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,^`", this.FontFamily, this.ScaledFontSize);
+            this.TextSize = Rage.Graphics.MeasureText("HExoqy", this.FontFamily, this.ScaledFontSize);
         }
 
         /// <summary>

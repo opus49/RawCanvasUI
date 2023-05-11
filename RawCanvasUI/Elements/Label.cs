@@ -7,6 +7,8 @@ namespace RawCanvasUI.Elements
     /// </summary>
     public class Label : TextElement
     {
+        private TextJustification justification = TextJustification.Left;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Label"/> class.
         /// </summary>
@@ -17,6 +19,16 @@ namespace RawCanvasUI.Elements
         {
             this.Text = text;
             this.Position = new Point(x, y);
+        }
+
+        public TextJustification TextJustification
+        {
+            get => this.justification;
+            set
+            {
+                this.justification = value;
+                this.UpdateBounds();
+            }
         }
 
         /// <summary>
@@ -51,7 +63,20 @@ namespace RawCanvasUI.Elements
         protected virtual void UpdateTextPosition(float scale)
         {
             float leading = Constants.Leading.TryGetValue(this.FontFamily, out float result) ? result : 0.25f;
-            var x = this.Bounds.X;
+            float x;
+            if (this.TextJustification == TextJustification.Left)
+            {
+                x = this.Bounds.X;
+            }
+            else if (this.TextJustification == TextJustification.Center)
+            {
+                x = this.Bounds.X - (this.TextSize.Width / 2f);
+            }
+            else
+            {
+                x = this.Bounds.X - this.TextSize.Width;
+            }
+
             var y = this.Bounds.Y + (this.Bounds.Height / 2f) - (this.TextSize.Height / 2f) - (this.TextSize.Height * leading);
             this.TextPosition = new PointF(x, y);
         }

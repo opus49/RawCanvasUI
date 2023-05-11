@@ -31,5 +31,12 @@
         None,
     }
 
+    public enum TextJustification
+    {
+        Left,
+        Center,
+        Right,
+    }
+
 #pragma warning restore 1591, SA1602
 }

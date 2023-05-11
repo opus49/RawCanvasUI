@@ -99,6 +99,7 @@ namespace RawCanvasUI.Elements
         public virtual void Add(string text)
         {
             this.Lines.Add(text);
+            this.UpdateBounds(); // this might be a mistake
             if (this.IsAutoScrollEnabled && this.Lines.Count > this.MaxLines)
             {
                 this.ScrollTo(this.Lines.Count);
@@ -144,7 +145,11 @@ namespace RawCanvasUI.Elements
         /// <inheritdoc/>
         public override void Draw(Rage.Graphics g)
         {
-            g.DrawRectangle(this.BorderBounds, this.BorderColor);
+            if (this.BorderWidth > 0)
+            {
+                g.DrawRectangle(this.BorderBounds, this.BorderColor);
+            }
+
             g.DrawRectangle(this.Bounds, this.BackgroundColor);
             for (int i = this.FirstLineIndex; i < this.Lines.Count; i++)
             {
@@ -258,10 +263,11 @@ namespace RawCanvasUI.Elements
         {
             this.UpdateScaledLineGap(scale);
             this.UpdateMaxLines();
+            float leading = Constants.Leading.TryGetValue(this.FontFamily, out float result) ? result : 0.25f;
             float x = this.Bounds.X + (this.LeftPadding * scale);
             var totalTextSize = this.MaxLines * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap));
             var totalGap = this.Bounds.Height - totalTextSize + (this.TextSize.Height * this.ScaledLineGap);
-            float y = this.Bounds.Y + (totalGap / 2f);
+            float y = this.Bounds.Y + (totalGap / 2f) - (this.TextSize.Height * leading);
             this.TextPosition = new PointF(x, y);
         }
     }

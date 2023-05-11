@@ -9,6 +9,8 @@ namespace RawCanvasUI.Elements
     /// </summary>
     public abstract class TextElement : BaseElement, IText
     {
+        private string text = string.Empty;
+
         /// <inheritdoc/>
         public Color DisabledFontColor { get; set; } = Defaults.DisabledFontColor;
 
@@ -25,7 +27,15 @@ namespace RawCanvasUI.Elements
         public float ScaledFontSize { get; protected set; } = Defaults.FontSize;
 
         /// <inheritdoc/>
-        public string Text { get; set; } = string.Empty;
+        public string Text
+        { 
+            get => this.text;
+            set
+            {
+                this.text = value;
+                this.UpdateBounds();
+            }
+        }
 
         /// <inheritdoc/>
         public SizeF TextSize { get; protected set; } = default;
@@ -38,7 +48,9 @@ namespace RawCanvasUI.Elements
                 var x = this.Parent.Bounds.X + (this.Position.X * this.Parent.Scale.Height);
                 var y = this.Parent.Bounds.Y + (this.Position.Y * this.Parent.Scale.Height);
                 this.ScaledFontSize = this.FontSize * this.Parent.Scale.Height;
-                this.TextSize = Rage.Graphics.MeasureText(this.Text, this.FontFamily, this.ScaledFontSize);
+                var sizeHeight = Rage.Graphics.MeasureText("HExo", this.FontFamily, this.ScaledFontSize);
+                var sizeWidth = Rage.Graphics.MeasureText(this.Text, this.FontFamily, this.ScaledFontSize);
+                this.TextSize = new SizeF(sizeWidth.Width, sizeHeight.Height);
                 this.Bounds = new RectangleF(new PointF(x, y), this.TextSize);
             }
         }
