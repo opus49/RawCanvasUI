@@ -14,6 +14,7 @@ namespace RawCanvasUI.Elements
         private readonly List<IObserver> observers = new List<IObserver>();
         private readonly string textureName;
         private readonly string clickedTextureName;
+        private string text = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TextureButton"/> class.
@@ -52,7 +53,15 @@ namespace RawCanvasUI.Elements
         public float ScaledFontSize { get; protected set; } = Defaults.FontSize;
 
         /// <inheritdoc/>
-        public string Text { get; set; } = string.Empty;
+        public string Text
+        {
+            get => this.text;
+            set
+            {
+                this.text = value;
+                this.UpdateBounds();
+            }
+        }
 
         /// <inheritdoc/>
         public SizeF TextSize { get; protected set; }
@@ -143,10 +152,11 @@ namespace RawCanvasUI.Elements
         protected virtual void UpdateText(float scale)
         {
             // centers the text on the button
+            float leading = Constants.Leading.TryGetValue(this.FontFamily, out float result) ? result : 0.20f;
             this.ScaledFontSize = this.FontSize * scale;
             this.TextSize = Rage.Graphics.MeasureText(this.Text, this.FontFamily, this.ScaledFontSize);
             var x = this.Bounds.X + (this.Bounds.Width / 2) - (this.TextSize.Width / 2);
-            var y = this.Bounds.Y + (this.Bounds.Height / 2) - (this.TextSize.Height / 2);
+            var y = this.Bounds.Y + (this.Bounds.Height / 2) - (this.TextSize.Height / 2) - (this.TextSize.Height * leading);
             this.TextPosition = new PointF(x, y);
         }
     }

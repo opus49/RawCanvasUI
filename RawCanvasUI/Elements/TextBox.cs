@@ -135,8 +135,9 @@ namespace RawCanvasUI.Elements
         /// <param name="scale">The scale to apply to the padding.</param>
         protected virtual void UpdateTextPosition(float scale)
         {
+            float leading = Constants.Leading.TryGetValue(this.FontFamily, out float result) ? result : 0.25f;
             var x = this.Bounds.X + (this.LeftPadding * scale);
-            var y = this.Bounds.Y + (this.Bounds.Height / 2f) - (this.TextSize.Height / 2f);
+            var y = this.Bounds.Y + (this.Bounds.Height / 2f) - (this.TextSize.Height / 2f) - (this.TextSize.Height * leading);
             this.TextPosition = new PointF(x, y);
         }
     }
