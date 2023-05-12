@@ -14,8 +14,18 @@ namespace RawCanvasUI.Widgets
     /// </summary>
     public abstract class BaseWidget : IObserver, IWidget
     {
+        private float widgetScale = 1f;
+        private Point position = default;
+        private Point maximizedPosition = default;
+
         /// <inheritdoc/>
         public RectangleF Bounds { get; protected set; } = default;
+
+        /// <inheritdoc/>
+        public Rectangle DragArea { get; protected set; } = default;
+
+        /// <inheritdoc/>
+        public RectangleF DragAreaBounds { get; protected set; } = default;
 
         /// <inheritdoc/>
         public PointF DragOffset { get; protected set; } = new PointF(0, 0);
@@ -30,6 +40,9 @@ namespace RawCanvasUI.Widgets
         public bool IsHovered { get; set; } = false;
 
         /// <inheritdoc/>
+        public bool IsMaximized { get; protected set; } = false;
+
+        /// <inheritdoc/>
         public bool IsVisible { get; set; } = true;
 
         /// <inheritdoc/>
@@ -39,7 +52,13 @@ namespace RawCanvasUI.Widgets
         public IParent Parent { get; set; } = null;
 
         /// <inheritdoc/>
-        public Point Position { get; protected set; } = default;
+        public Point Position
+        {
+            get
+            {
+                return this.IsMaximized ? maximizedPosition : position;
+            }
+        }
 
         /// <inheritdoc/>
         public SizeF Scale
@@ -73,7 +92,18 @@ namespace RawCanvasUI.Widgets
         }
 
         /// <inheritdoc/>
-        public float WidgetScale { get; protected set; } = 1f;
+        public float WidgetScale 
+        {
+            get
+            {
+                if (this.Parent is Canvas && this.IsMaximized)
+                {
+                    return Constants.MaxScale;
+                }
+
+                return this.widgetScale;
+            }
+        }
 
         /// <inheritdoc/>
         public int Width { get; protected set; }
@@ -133,6 +163,17 @@ namespace RawCanvasUI.Widgets
         }
 
         /// <inheritdoc/>
+        public virtual bool ContainsInDragArea(Cursor cursor)
+        {
+            if (this.Parent is Canvas && !this.IsMaximized)
+            {
+                return this.DragAreaBounds.Contains(cursor.Bounds.Location);
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc/>
         public void Drag(PointF mousePosition)
         {
             this.MoveTo(new Point((int)System.Math.Round(mousePosition.X + this.DragOffset.X), (int)System.Math.Round(mousePosition.Y + this.DragOffset.Y)));
@@ -147,7 +188,7 @@ namespace RawCanvasUI.Widgets
         /// <inheritdoc/>
         public void MoveTo(Point position)
         {
-            this.Position = position;
+            this.position = position;
             this.UpdateBounds();
         }
 
@@ -162,12 +203,18 @@ namespace RawCanvasUI.Widgets
             this.Items.Remove(item);
         }
 
+        public virtual void SetMaximized(bool isMaximized)
+        {
+            this.IsMaximized = isMaximized;
+            this.UpdateBounds();
+        }
+
         /// <inheritdoc/>
         public void SetWidgetScale(float scale)
         {
-            if (this.Parent is Canvas)
+            if (this.Parent is Canvas && !this.IsMaximized)
             {
-                this.WidgetScale = scale < Constants.MinScale ? Constants.MinScale : (scale > Constants.MaxScale ? Constants.MaxScale : scale);
+                this.widgetScale = scale < Constants.MinScale ? Constants.MinScale : (scale > Constants.MaxScale ? Constants.MaxScale : scale);
                 this.UpdateBounds();
             }
         }
@@ -197,10 +244,16 @@ namespace RawCanvasUI.Widgets
 
             if (this.Parent is Canvas canvas)
             {
+                this.maximizedPosition = new Point((1920 - (this.Width * 2)) / 2, (1080 - (this.Height * 2)) / 2);
                 float x = this.Position.X * canvas.Scale.Width;
                 float y = this.Position.Y * canvas.Scale.Height;
                 var size = new SizeF(this.Width * this.Scale.Height, this.Height * this.Scale.Height);
                 this.Bounds = new RectangleF(new PointF(x, y), size);
+
+                float dragX = this.Bounds.X + (this.DragArea.X * this.Scale.Height);
+                float dragY = this.Bounds.Y + (this.DragArea.Y * this.Scale.Height);
+                var dragSize = new SizeF(this.DragArea.Width * this.Scale.Height, this.DragArea.Height * this.Scale.Height);
+                this.DragAreaBounds = new RectangleF(new PointF(dragX, dragY), dragSize);
             }
             else
             {

@@ -29,33 +29,26 @@ namespace RawCanvasUI.Mouse
 
             if (widgetManager.HoveredControl is IClickable clickable)
             {
-                Logging.Debug($"user pressed mouse on IClickable: {clickable.GetType()}");
                 clickable.Click(cursor);
                 widgetManager.PressedControl = widgetManager.HoveredControl;
             }
             else if (widgetManager.HoveredControl is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
             {
-                Logging.Debug($"user pressed mouse on IScrollable that contains cursor: {scrollable.GetType()}");
                 scrollable.ScrollbarClick(cursor);
                 widgetManager.PressedControl = widgetManager.HoveredControl;
             }
             else if (widgetManager.HoveredControl is ISelectable selectable)
             {
-                Logging.Debug($"user pressed on ISelectable: {selectable.GetType()}");
                 selectable.Select(cursor);
                 widgetManager.PressedControl = null;
             }
+            else if (widgetManager.PressedWidget is IWidget widget && widget.Parent is Canvas && widget.ContainsInDragArea(cursor))
+            {
+                widget.StartDrag(cursor.Position);
+                widgetManager.BringToFront(widget);
+            }
             else
             {
-                if (widgetManager.HoveredControl != null)
-                {
-                    Logging.Debug($"user pressed mouse on: {widgetManager.HoveredControl.GetType()}");
-                }
-                else
-                {
-                    Logging.Debug("user pressed mouse but it wasn't over a control");
-                }
-
                 widgetManager.PressedControl = null;
             }
 

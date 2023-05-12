@@ -11,6 +11,16 @@ namespace RawCanvasUI.Interfaces
     public interface IWidget : IContainer, IGeometry
     {
         /// <summary>
+        /// Gets the canvas based dimensions for the draggable area of the widget, like a titlebar.
+        /// </summary>
+        Rectangle DragArea { get; }
+
+        /// <summary>
+        /// Gets the real screen bounds for the drag area.
+        /// </summary>
+        RectangleF DragAreaBounds { get; }
+
+        /// <summary>
         /// Gets the offset between the mouse cursor and the top-left corner of the element when being dragged.
         /// </summary>
         PointF DragOffset { get; }
@@ -36,6 +46,13 @@ namespace RawCanvasUI.Interfaces
         /// <param name="cursor">The cursor object.</param>
         /// <returns>True if the cursor resides within the bounds of the widget, otherwise false.</returns>
         bool Contains(Cursor cursor);
+
+        /// <summary>
+        /// Gets a value indicating whether or not the cursor resides in the widget's drag area.
+        /// </summary>
+        /// <param name="cursor">The cursor</param>
+        /// <returns>True if the cursor resides within the drag area.</returns>
+        bool ContainsInDragArea(Cursor cursor);
 
         /// <summary>
         /// Called when the element is being dragged.

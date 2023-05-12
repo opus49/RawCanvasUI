@@ -74,21 +74,6 @@ namespace RawCanvasUI.Mouse
                     widget.SetWidgetScale(widget.WidgetScale + (cursor.ScrollWheelStatus == ScrollWheelStatus.Up ? Constants.RescaleIncrement : -Constants.RescaleIncrement));
                 }
             }
-            else
-            {
-                if (widget.Contains(cursor))
-                {
-                    if (cursor.ClickDuration > cursor.LongClickDuration)
-                    {
-                        widget.StartDrag(cursor.Position);
-                        widgetManager.BringToFront(widget);
-                    }
-                }
-                else
-                {
-                    widgetManager.PressedWidget = null;
-                }
-            }
         }
     }
 }

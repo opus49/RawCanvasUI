@@ -22,13 +22,11 @@ namespace RawCanvasUI.Widgets
         /// <param name="widgetTextureName">The name of the texture for the widget background.</param>
         /// <param name="activeButtonTextureName">The name of the texture for the active button.</param>
         /// <param name="inactiveButtonTextureName">The name of the texture for the inactive button.</param>
-        public TabbedWidget(string widgetTextureName, int width, int height, int tabWidth, int tabHeight, string activeButtonTextureName, string inactiveButtonTextureName)
-            : base(widgetTextureName, width, height)
+        public TabbedWidget(string widgetTextureName, int width, int height, int tabWidth, int tabHeight, string activeButtonTextureName, string inactiveButtonTextureName, Rectangle dragArea = default)
+            : base(widgetTextureName, width, height, dragArea)
         {
             this.activeButtonTextureName = activeButtonTextureName;
             this.inactiveButtonTextureName = inactiveButtonTextureName;
-            this.Width = width;
-            this.Height = height;
             this.tabWidth = tabWidth;
             this.tabHeight = tabHeight;
         }

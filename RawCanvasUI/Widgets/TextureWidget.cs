@@ -18,10 +18,12 @@ namespace RawCanvasUI.Widgets
         /// <param name="textureName">The name of the texture.</param>
         /// <param name="width">The fixed width relative to the canvas.</param>
         /// <param name="height">The fixed height relative to the canvas.</param>
-        public TextureWidget(string textureName, int width, int height)
+        /// <param name="dragArea">The grabbable area for dragging relative to the widget.</param>
+        public TextureWidget(string textureName, int width, int height, Rectangle dragArea = default)
         {
             this.Width = width;
             this.Height = height;
+            this.DragArea = dragArea;
             this.textureName = textureName;
         }
 
