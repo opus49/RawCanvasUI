@@ -99,6 +99,12 @@ namespace RawCanvasUI
                 return;
             }
 
+            if (Game.LocalPlayer.Character.CurrentVehicle != null && Game.LocalPlayer.Character.CurrentVehicle.Speed > 1f)
+            {
+                Game.DisplayHelp("Your vehicle must be stopped to use interactive mode.");
+                return;
+            }
+
             this.IsActive = true;
             this.SetPlayerControls(false);
         }
@@ -187,7 +193,8 @@ namespace RawCanvasUI
         {
             if (isEnabled != this.isControlsEnabled)
             {
-                NativeFunction.Natives.x8D32347D6D4C40A2(Game.LocalPlayer, isEnabled, 0);
+                // NativeFunction.Natives.x8D32347D6D4C40A2(Game.LocalPlayer, isEnabled, 0);
+                NativeFunction.Natives.SET_PLAYER_CONTROL(Game.LocalPlayer, isEnabled, 1024);
                 NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(isEnabled);
                 this.isControlsEnabled = isEnabled;
             }
