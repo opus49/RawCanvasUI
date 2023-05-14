@@ -17,6 +17,11 @@
         void AddObserver(IObserver observer);
 
         /// <summary>
+        /// Called when the observers should be notified of something.
+        /// </summary>
+        void NotifyObservers();
+
+        /// <summary>
         /// Removes an observer from the observable.
         /// </summary>
         /// <param name="observer">The observer to remove.</param>

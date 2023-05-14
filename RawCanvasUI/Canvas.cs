@@ -12,10 +12,9 @@ namespace RawCanvasUI
     /// <summary>
     /// A canvas representing the screen area where elements can be added and positioned.
     /// </summary>
-    public sealed class Canvas : IObservable, IParent
+    public sealed class Canvas : IParent
     {
         private readonly WidgetManager widgetManager;
-        private readonly List<IObserver> observers = new List<IObserver>();
         private bool isControlsEnabled = true;
 
         /// <summary>
@@ -83,12 +82,6 @@ namespace RawCanvasUI
             this.widgetManager.AddWidget(widget);
         }
 
-        /// <inheritdoc />
-        public void AddObserver(IObserver observer)
-        {
-            this.observers.Add(observer);
-        }
-
         /// <summary>
         /// Set the canvas to interactive mode.
         /// </summary>
@@ -131,12 +124,6 @@ namespace RawCanvasUI
             Logging.Warning("you cannot move the canvas, dumbass");
         }
 
-        /// <inheritdoc />
-        public void RemoveObserver(IObserver observer)
-        {
-            this.observers.Remove(observer);
-        }
-
         /// <summary>
         /// Executed every time the fiber fires.
         /// </summary>
@@ -164,11 +151,6 @@ namespace RawCanvasUI
             else
             {
                 this.Cursor.UpdateStatus();
-                if (this.Cursor.Position.X < 480 && this.Cursor.Position.Y < 16)
-                {
-                    this.observers.ForEach(x => x.OnUpdated(this));
-                }
-
                 this.widgetManager.HandleMouseEvents(this.Cursor);
             }
         }

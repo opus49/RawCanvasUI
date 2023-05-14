@@ -53,7 +53,7 @@ namespace RawCanvasUI.Elements
             if (!this.isActivateOnly || !this.isActive)
             {
                 this.Toggle();
-                this.UpdateObservers();
+                this.NotifyObservers();
             }
         }
 

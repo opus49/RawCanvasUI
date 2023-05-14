@@ -69,10 +69,7 @@ namespace RawCanvasUI.Elements
         /// <inheritdoc/>
         public void Click(Cursor cursor)
         {
-            foreach (var observer in this.observers)
-            {
-                observer.OnUpdated(this);
-            }
+            this.NotifyObservers();
         }
 
         /// <inheritdoc/>
@@ -94,6 +91,12 @@ namespace RawCanvasUI.Elements
 
             g.DrawRectangle(this.Bounds, this.BackgroundColor);
             g.DrawText(this.Text, this.FontFamily, this.ScaledFontSize, this.TextPosition, this.IsEnabled ? this.FontColor : this.DisabledFontColor);
+        }
+
+        /// <inheritdoc/>
+        public virtual void NotifyObservers()
+        {
+            this.observers.ForEach(x => x.OnUpdated(this));
         }
 
         /// <inheritdoc/>

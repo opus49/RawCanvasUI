@@ -36,6 +36,18 @@ namespace RawCanvasUI.Elements
         public Color HighlightFontColor { get; set; } = Defaults.HighlightFontColor;
 
         /// <inheritdoc/>
+        public void NotifyObservers()
+        {
+            this.observers.ForEach(x => x.OnUpdated(this));
+        }
+
+        /// <inheritdoc/>
+        public void Reset()
+        {
+            this.ClearText();
+        }
+
+        /// <inheritdoc/>
         public int SelectedIndex { get; protected set; } = -1;
 
         /// <inheritdoc/>
@@ -47,9 +59,16 @@ namespace RawCanvasUI.Elements
                 if (this.selectedItem != value)
                 {
                     this.selectedItem = value;
-                    this.observers.ForEach(x => x.OnUpdated(this));
+                    this.NotifyObservers();
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        public override void Add(string text)
+        {
+            this.NotifyObservers();
+            base.Add(text);
         }
 
         /// <inheritdoc/>
@@ -90,6 +109,12 @@ namespace RawCanvasUI.Elements
         }
 
         /// <inheritdoc/>
+        public void NewItem(int index, T item)
+        {
+            this.Add(item.ToString());
+        }
+
+        /// <inheritdoc/>
         public void RemoveObserver(IObserver observer)
         {
             this.observers.Remove(observer);
@@ -110,6 +135,7 @@ namespace RawCanvasUI.Elements
             }
         }
 
+        /// <inheritdoc/>
         public virtual void UpdateItem(int index, T item)
         {
             if (index >= 0 && index < this.Lines.Count)

@@ -91,7 +91,7 @@ namespace RawCanvasUI.Elements
                 this.SetTextureName(this.clickedTextureName);
             }
 
-            this.UpdateObservers();
+            this.NotifyObservers();
         }
 
         /// <inheritdoc/>
@@ -111,6 +111,12 @@ namespace RawCanvasUI.Elements
             {
                 g.DrawText(this.Text, this.FontFamily, this.ScaledFontSize, this.TextPosition, this.IsEnabled ? this.FontColor : this.DisabledFontColor, this.Bounds);
             }
+        }
+
+        /// <inheritdoc/>
+        public virtual void NotifyObservers()
+        {
+            this.observers.ForEach(x => x.OnUpdated(this));
         }
 
         /// <summary>
@@ -138,11 +144,6 @@ namespace RawCanvasUI.Elements
                 base.UpdateBounds();
                 this.UpdateText(this.Parent.Scale.Height);
             }
-        }
-
-        protected void UpdateObservers()
-        {
-            this.observers.ForEach(x => x.OnUpdated(this));
         }
 
         /// <summary>

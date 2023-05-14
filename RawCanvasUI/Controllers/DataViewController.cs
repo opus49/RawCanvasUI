@@ -48,14 +48,12 @@ namespace RawCanvasUI.Controllers
                     foreach (T item in e.NewItems)
                     {
                         int index = this.model.Items.IndexOf(item);
-                        this.views.OfType<DataListView<T>>().ToList().ForEach(x => x.Add(item.ToString()));
-                        this.views.OfType<IDataItemView<T>>().ToList().ForEach(x => x.NewItem(index, item));
+                        this.views.ForEach(x => x.NewItem(index, item));
                     }
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    this.views.OfType<DataListView<T>>().ToList().ForEach(x => x.ClearText());
-                    this.views.OfType<IDataItemView<T>>().ToList().ForEach(x => x.ClearItem());
+                    this.views.ForEach(x => x.Reset());
                     break;
             }
         }
@@ -64,7 +62,7 @@ namespace RawCanvasUI.Controllers
         {
             var item = (T)sender;
             var index = this.Model.Items.IndexOf(item);
-            this.views.OfType<IDataView<T>>().ToList().ForEach(x => x.UpdateItem(index, item));
+            this.views.ForEach(x => x.UpdateItem(index, item));
         }
     }
 }
