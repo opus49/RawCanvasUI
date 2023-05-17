@@ -12,6 +12,8 @@ namespace RawCanvasUI.Elements
     /// </summary>
     public class TextArea : TextBox, IScrollable
     {
+        private TextAlignment alignment = TextAlignment.Top;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TextArea"/> class.
         /// </summary>
@@ -25,6 +27,22 @@ namespace RawCanvasUI.Elements
             this.Position = new Point(x, y);
             this.Height = height;
             this.Width = width;
+        }
+
+        /// <summary>
+        /// Gets or sets the vertical alignment of the text box.
+        /// </summary>
+        public TextAlignment Alignment
+        {
+            get
+            {
+                return this.alignment;
+            }
+            set
+            {
+                this.alignment = value;
+                this.UpdateBounds();
+            }
         }
 
         /// <summary>
@@ -265,7 +283,8 @@ namespace RawCanvasUI.Elements
             this.UpdateMaxLines();
             float leading = Constants.Leading.TryGetValue(this.FontFamily, out float result) ? result : 0.25f;
             float x = this.Bounds.X + (this.LeftPadding * scale);
-            var totalTextSize = this.MaxLines * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap));
+            int lines = this.alignment == TextAlignment.Top ? this.MaxLines : (this.Lines.Count < this.MaxLines ? this.Lines.Count : this.MaxLines);
+            var totalTextSize = lines * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap));
             var totalGap = this.Bounds.Height - totalTextSize + (this.TextSize.Height * this.ScaledLineGap);
             float y = this.Bounds.Y + (totalGap / 2f) - (this.TextSize.Height * leading);
             this.TextPosition = new PointF(x, y);

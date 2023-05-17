@@ -31,6 +31,12 @@
         None,
     }
 
+    public enum TextAlignment
+    {
+        Top,
+        Middle,
+    }
+
     public enum TextJustification
     {
         Left,
