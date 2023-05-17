@@ -124,29 +124,23 @@ namespace RawCanvasUI
             Logging.Warning("you cannot move the canvas, dumbass");
         }
 
-        /// <summary>
-        /// Executed every time the fiber fires.
-        /// </summary>
-        private void UpdateResolution()
-        {
-            this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
-            if (this.Resolution != Game.Resolution)
-            {
-                this.UpdateBounds();
-            }
-        }
-
         private void Game_FrameRender(object sender, Rage.GraphicsEventArgs e)
         {
-            this.UpdateResolution();
+            this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
             if (!this.IsActive || Game.Console.IsOpen || this.IsGamePaused)
             {
                 return;
             }
-            else if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, (int)GameControl.CellphoneCancel))
+
+            if (this.Resolution != Game.Resolution)
             {
-                this.SetPlayerControls(true);
+                this.UpdateBounds();
+            }
+
+            if (NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_RELEASED<bool>(0, (int)GameControl.CursorCancel))
+            {
                 this.IsActive = false;
+                this.SetPlayerControls(true);
             }
             else
             {
@@ -175,10 +169,9 @@ namespace RawCanvasUI
         {
             if (isEnabled != this.isControlsEnabled)
             {
-                // NativeFunction.Natives.x8D32347D6D4C40A2(Game.LocalPlayer, isEnabled, 0);
+                this.isControlsEnabled = isEnabled;
                 NativeFunction.Natives.SET_PLAYER_CONTROL(Game.LocalPlayer, isEnabled, 1024);
                 NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(isEnabled);
-                this.isControlsEnabled = isEnabled;
             }
         }
 
