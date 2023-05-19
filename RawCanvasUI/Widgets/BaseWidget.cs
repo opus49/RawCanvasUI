@@ -43,7 +43,7 @@ namespace RawCanvasUI.Widgets
         public bool IsMaximized { get; protected set; } = false;
 
         /// <inheritdoc/>
-        public bool IsVisible { get; set; } = true;
+        public virtual bool IsVisible { get; set; } = true;
 
         /// <inheritdoc/>
         public List<IDrawable> Items { get; protected set; } = new List<IDrawable>();
