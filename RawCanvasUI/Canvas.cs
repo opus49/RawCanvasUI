@@ -92,14 +92,17 @@ namespace RawCanvasUI
                 return;
             }
 
+            /*
+             * TESTING
             if (Game.LocalPlayer.Character.CurrentVehicle != null && Game.LocalPlayer.Character.CurrentVehicle.Speed > 1f)
             {
                 Game.DisplayHelp("Your vehicle must be stopped to use interactive mode.");
                 return;
             }
+            */
 
             this.IsActive = true;
-            this.SetPlayerControls(false);
+            // TEST this.SetPlayerControls(false);
         }
 
         /// <summary>
@@ -137,10 +140,24 @@ namespace RawCanvasUI
                 this.UpdateBounds();
             }
 
+            /*
+             * TESTING
+             */
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorX);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorY);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.VehicleAim);
+            Game.DisableControlAction(0, GameControl.CursorX, true);
+            Game.DisableControlAction(0, GameControl.CursorY, true);
+            Game.DisableControlAction(0, GameControl.CursorAccept, true);
+            Game.DisableControlAction(0, GameControl.CursorCancel, true);
+            Game.DisableControlAction(0, GameControl.WeaponWheelNext, true);
+            Game.DisableControlAction(0, GameControl.WeaponWheelPrev, true);
+            Game.DisableControlAction(0, GameControl.VehicleAim, true);
+
             if (NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_RELEASED<bool>(0, (int)GameControl.CursorCancel))
             {
                 this.IsActive = false;
-                this.SetPlayerControls(true);
+                // TEST this.SetPlayerControls(true);
             }
             else
             {
