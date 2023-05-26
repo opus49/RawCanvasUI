@@ -102,6 +102,7 @@ namespace RawCanvasUI
             */
 
             this.IsActive = true;
+            NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(false);
             // TEST this.SetPlayerControls(false);
         }
 
@@ -152,11 +153,20 @@ namespace RawCanvasUI
             Game.DisableControlAction(0, GameControl.CursorCancel, true);
             Game.DisableControlAction(0, GameControl.WeaponWheelNext, true);
             Game.DisableControlAction(0, GameControl.WeaponWheelPrev, true);
+            Game.DisableControlAction(0, GameControl.Attack, true);
+            Game.DisableControlAction(0, GameControl.Attack2, true);
+            Game.DisableControlAction(0, GameControl.Reload, true);
+            Game.DisableControlAction(0, GameControl.MeleeAttack1, true);
+            Game.DisableControlAction(0, GameControl.MeleeAttack2, true);
+            Game.DisableControlAction(0, GameControl.MeleeAttackAlternate, true);
             Game.DisableControlAction(0, GameControl.VehicleAim, true);
+            Game.DisableControlAction(0, GameControl.VehicleAttack, true);
+            Game.DisableControlAction(0, GameControl.VehicleAttack2, true);
 
             if (NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_RELEASED<bool>(0, (int)GameControl.CursorCancel))
             {
                 this.IsActive = false;
+                NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(true);
                 // TEST this.SetPlayerControls(true);
             }
             else
