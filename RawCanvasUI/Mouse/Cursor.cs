@@ -107,7 +107,7 @@ namespace RawCanvasUI.Mouse
         /// </summary>
         private void UpdateMouseStatus()
         {
-            if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, (int)GameControl.Attack))
+            if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, (int)GameControl.CursorAccept))
             {
                 if (this.MouseStatus != MouseStatus.Down)
                 {
@@ -141,11 +141,11 @@ namespace RawCanvasUI.Mouse
         /// </summary>
         private void UpdateScrollWheelStatus()
         {
-            if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, (int)GameControl.WeaponWheelNext))
+            if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, (int)GameControl.CursorScrollDown))
             {
                 this.ScrollWheelStatus = ScrollWheelStatus.Down;
             }
-            else if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, (int)GameControl.WeaponWheelPrev))
+            else if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, (int)GameControl.CursorScrollUp))
             {
                 this.ScrollWheelStatus = ScrollWheelStatus.Up;
             }
