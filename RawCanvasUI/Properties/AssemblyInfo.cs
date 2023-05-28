@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RawCanvasUI")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A library that uses RagePluginHook to draw an interactive UI.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Opus49")]
 [assembly: AssemblyProduct("RawCanvasUI")]
 [assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
