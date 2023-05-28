@@ -42,4 +42,7 @@
 	<ItemGroup>
 		<PackageReference Include="RagePluginHook" Version="1.98.0" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
+	</ItemGroup>
 </Project>
