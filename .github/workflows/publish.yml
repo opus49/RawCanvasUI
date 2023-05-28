@@ -1,0 +1,57 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Build
+        run: |
+          $env:TAG_VERSION=git describe --tags --abbrev=0
+          msbuild RawCanvasUI.sln /t:restore
+          msbuild RawCanvasUI.sln /p:Configuration=Release /p:Platform=x64 /p:Version="$env:TAG_VERSION"
+
+      - name: Create Zip
+        run: |
+          Compress-Archive -Path RawCanvasUI/bin/Release/RawCanvasUI.dll,RawCanvasUI/bin/Release/RawCanvasUI.xml -DestinationPath RawCanvasUI/bin/Release/RawCanvasUI.zip
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: RawCanvasUI/bin/Release/RawCanvasUI.zip
+
+      - name: Push Package
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          cd RawCanvasUI/bin/Release/
+          dotnet nuget push RawCanvasUI.*.nupkg --api-key "$env:NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
+
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: output
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: RawCanvasUI.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
