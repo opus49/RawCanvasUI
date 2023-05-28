@@ -4,7 +4,6 @@ using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
 using RawCanvasUI.Util;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 
 namespace RawCanvasUI
@@ -15,7 +14,7 @@ namespace RawCanvasUI
     public sealed class Canvas : IParent
     {
         private readonly WidgetManager widgetManager;
-        private bool isControlsEnabled = true;
+        private bool isInteractive = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Canvas"/> class.
@@ -48,9 +47,27 @@ namespace RawCanvasUI
         }
 
         /// <summary>
-        /// Gets a value indicating whether or not the canvas is active.
+        /// Gets or sets a value indicating whether or not the canvas is interactive.
         /// </summary>
-        public bool IsActive { get; private set; } = false;
+        public bool IsInteractive
+        {
+            get => this.isInteractive;
+            set
+            {
+                if (this.isInteractive != value)
+                {
+                    this.isInteractive = value;
+                    if (this.isInteractive)
+                    {
+                        NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(false);
+                    }
+                    else
+                    {
+                        NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(true);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating whether or not the game is paused.
@@ -83,26 +100,6 @@ namespace RawCanvasUI
         }
 
         /// <summary>
-        /// Set the canvas to interactive mode.
-        /// </summary>
-        public void Interact()
-        {
-            if (this.IsActive)
-            {
-                return;
-            }
-
-            if (Game.LocalPlayer.Character.CurrentVehicle != null && Game.LocalPlayer.Character.CurrentVehicle.Speed > 1f)
-            {
-                Game.DisplayHelp("Your vehicle must be stopped to use interactive mode.");
-                return;
-            }
-
-            this.IsActive = true;
-            this.SetPlayerControls(false);
-        }
-
-        /// <summary>
         /// Loads the canvas.
         /// </summary>
         /// <param name="texturePath">The fully qualified path to the textures.</param>
@@ -127,7 +124,7 @@ namespace RawCanvasUI
         private void Game_FrameRender(object sender, Rage.GraphicsEventArgs e)
         {
             this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
-            if (!this.IsActive || Game.Console.IsOpen || this.IsGamePaused)
+            if (!this.IsInteractive || Game.Console.IsOpen || this.IsGamePaused)
             {
                 return;
             }
@@ -137,10 +134,10 @@ namespace RawCanvasUI
                 this.UpdateBounds();
             }
 
+            this.DisableControls();
             if (NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_RELEASED<bool>(0, (int)GameControl.CursorCancel))
             {
-                this.IsActive = false;
-                this.SetPlayerControls(true);
+                this.IsInteractive = false;
             }
             else
             {
@@ -154,25 +151,37 @@ namespace RawCanvasUI
             if (!this.IsGamePaused)
             {
                 this.widgetManager.Draw(e.Graphics);
-                if (this.IsActive)
+                if (this.IsInteractive)
                 {
                     this.Cursor.Draw(e.Graphics);
                 }
             }
         }
 
-        /// <summary>
-        /// Enables or disables the player controls.
-        /// </summary>
-        /// <param name="isEnabled">Whether or not to enable or disable the controls.</param>
-        private void SetPlayerControls(bool isEnabled)
+        private void DisableControls()
         {
-            if (isEnabled != this.isControlsEnabled)
-            {
-                this.isControlsEnabled = isEnabled;
-                NativeFunction.Natives.SET_PLAYER_CONTROL(Game.LocalPlayer, isEnabled, 1024);
-                NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(isEnabled);
-            }
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorX);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorY);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorScrollUp);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorScrollDown);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.VehicleAim);
+            Game.DisableControlAction(0, GameControl.CursorX, true);
+            Game.DisableControlAction(0, GameControl.CursorY, true);
+            Game.DisableControlAction(0, GameControl.CursorAccept, true);
+            Game.DisableControlAction(0, GameControl.CursorCancel, true);
+            Game.DisableControlAction(0, GameControl.CursorScrollUp, true);
+            Game.DisableControlAction(0, GameControl.CursorScrollDown, true);
+            Game.DisableControlAction(0, GameControl.WeaponWheelNext, true);
+            Game.DisableControlAction(0, GameControl.WeaponWheelPrev, true);
+            Game.DisableControlAction(0, GameControl.Attack, true);
+            Game.DisableControlAction(0, GameControl.Attack2, true);
+            Game.DisableControlAction(0, GameControl.Reload, true);
+            Game.DisableControlAction(0, GameControl.MeleeAttack1, true);
+            Game.DisableControlAction(0, GameControl.MeleeAttack2, true);
+            Game.DisableControlAction(0, GameControl.MeleeAttackAlternate, true);
+            Game.DisableControlAction(0, GameControl.VehicleAim, true);
+            Game.DisableControlAction(0, GameControl.VehicleAttack, true);
+            Game.DisableControlAction(0, GameControl.VehicleAttack2, true);
         }
 
         private void UpdateBounds()
