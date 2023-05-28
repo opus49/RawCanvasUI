@@ -92,6 +92,18 @@ namespace RawCanvasUI.Mouse
             }
         }
 
+        /// <inheritdoc/>
+        public override void UpdateBounds()
+        {
+            if (this.Parent != null)
+            {
+                var x = this.Position.X * this.Parent.Scale.Width;
+                var y = this.Position.Y * this.Parent.Scale.Height;
+                var size = new SizeF(this.Width * this.Parent.Scale.Height, this.Height * this.Parent.Scale.Height);
+                this.Bounds = new RectangleF(new PointF(x, y), size);
+            }
+        }
+
         /// <summary>
         /// Updates the position, mouse status, and scroll wheel status.  The position is based on the canvas.
         /// </summary>
