@@ -52,6 +52,6 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files: RawCanvasUI.zip
+        files: RawCanvasUI/bin/Release/RawCanvasUI.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
