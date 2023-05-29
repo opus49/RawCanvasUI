@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using RawCanvasUI.Elements;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
 using RawCanvasUI.Style;
@@ -90,6 +91,15 @@ namespace RawCanvasUI.Util
         public void Draw(Rage.Graphics g)
         {
             this.widgets.Where(x => x.IsVisible).ToList().ForEach(x => x.Draw(g));
+        }
+
+        /// <summary>
+        /// Gets a value indicating the current mouse state.
+        /// </summary>
+        /// <returns>The mouse state.</returns>
+        public MouseState GetMouseState()
+        {
+            return this.mouseState;
         }
 
         /// <summary>

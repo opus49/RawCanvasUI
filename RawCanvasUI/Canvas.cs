@@ -15,6 +15,7 @@ namespace RawCanvasUI
     {
         private readonly WidgetManager widgetManager;
         private bool isInteractive = false;
+        private bool isInteractiveModeJustExited = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Canvas"/> class.
@@ -57,6 +58,7 @@ namespace RawCanvasUI
                 if (this.isInteractive != value)
                 {
                     this.isInteractive = value;
+                    Logging.Debug($"Canvas setting isInteractive to {this.isInteractive}");
                     if (this.isInteractive)
                     {
                         NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(false);
@@ -64,6 +66,7 @@ namespace RawCanvasUI
                     else
                     {
                         NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(true);
+                        this.isInteractiveModeJustExited = true;
                     }
                 }
             }
@@ -124,13 +127,26 @@ namespace RawCanvasUI
         private void Game_FrameRender(object sender, Rage.GraphicsEventArgs e)
         {
             this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
-            if (!this.IsInteractive || Game.Console.IsOpen || this.IsGamePaused)
+            if (Game.Console.IsOpen || this.IsGamePaused)
             {
+                return;
+            }
+
+            if (!this.IsInteractive)
+            {
+                if (this.isInteractiveModeJustExited)
+                {
+                    this.Cursor.ForceMouseRelease();
+                    this.widgetManager.HandleMouseEvents(this.Cursor);
+                    this.isInteractiveModeJustExited = false;
+                }
+
                 return;
             }
 
             if (this.Resolution != Game.Resolution)
             {
+                Logging.Info("game resolution has changed, updating bounds");
                 this.UpdateBounds();
             }
 
@@ -186,10 +202,10 @@ namespace RawCanvasUI
 
         private void UpdateBounds()
         {
-            Logging.Info("game resolution has changed, updating bounds");
             this.Resolution = Rage.Game.Resolution;
             this.Scale = new SizeF(this.Resolution.Width / Constants.CanvasWidth, this.Resolution.Height / Constants.CanvasHeight);
             this.Bounds = new RectangleF(this.Position, this.Resolution);
+            Logging.Debug($"canvas updated bounds:  resolution {this.Resolution}  scale: {this.Scale}  bounds: {this.Bounds}");
             this.widgetManager.UpdateWidgetBounds();
         }
     }
