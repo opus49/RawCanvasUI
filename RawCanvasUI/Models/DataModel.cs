@@ -31,6 +31,25 @@ namespace RawCanvasUI.Models
             this.RaiseCollectionChangedEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
+        public virtual bool Remove(T item)
+        {
+            int oldIndex = this.items.IndexOf(item);
+            if (oldIndex == -1)
+            {
+                return false;
+
+            }
+
+            bool removed = this.items.Remove(item);
+            if (removed)
+            {
+                this.RaiseCollectionChangedEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, oldIndex));
+                item.PropertyChanged -= this.OnItemPropertyChanged;
+            }
+
+            return removed;
+        }
+
         protected virtual void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             this.PropertyChanged?.Invoke(sender, e);

@@ -4,7 +4,6 @@ using RawCanvasUI.Models;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 
 namespace RawCanvasUI.Controllers
 {
@@ -45,10 +44,19 @@ namespace RawCanvasUI.Controllers
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    foreach (T item in e.NewItems)
+                    foreach (T newItem in e.NewItems)
                     {
-                        int index = this.model.Items.IndexOf(item);
-                        this.views.ForEach(x => x.NewItem(index, item));
+                        int newIndex = this.model.Items.IndexOf(newItem);
+                        this.views.ForEach(x => x.NewItem(newIndex, newItem));
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems != null && e.OldItems.Count > 0 && e.OldStartingIndex >= 0)
+                    {
+                        int oldIndex = e.OldStartingIndex;
+                        T oldItem = (T)e.OldItems[0];
+                        this.views.ForEach(x => x.RemoveItem(oldIndex, oldItem));
                     }
                     break;
 
