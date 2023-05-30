@@ -92,6 +92,16 @@ namespace RawCanvasUI.Mouse
             }
         }
 
+        public void ForceMouseRelease()
+        {
+            if (this.MouseStatus != MouseStatus.Up)
+            {
+                Logging.Debug("Cursor forcing mouse release");
+                this.clickTimer.Reset();
+                this.MouseStatus = MouseStatus.Up;
+            }
+        }
+
         /// <inheritdoc/>
         public override void UpdateBounds()
         {
