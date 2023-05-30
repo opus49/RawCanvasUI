@@ -29,29 +29,19 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: RawCanvasUI.zip
+          name: output
           path: RawCanvasUI/bin/Release/RawCanvasUI.zip
 
       - name: Push Package
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          # cd RawCanvasUI/bin/Release/
-          # dotnet nuget push RawCanvasUI.*.nupkg --api-key "$env:NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
+          cd RawCanvasUI/bin/Release/
+          dotnet nuget push RawCanvasUI.*.nupkg --api-key "$env:NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
 
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: RawCanvasUI.zip
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: RawCanvasUI.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: RawCanvasUI/bin/Release/RawCanvasUI.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
