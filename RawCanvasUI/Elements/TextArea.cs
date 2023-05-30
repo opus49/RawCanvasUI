@@ -169,19 +169,35 @@ namespace RawCanvasUI.Elements
             }
 
             g.DrawRectangle(this.Bounds, this.BackgroundColor);
-            for (int i = this.FirstLineIndex; i < this.Lines.Count; i++)
+            List<string> snapshot = new List<string>(this.Lines);
+            for (int i = this.FirstLineIndex; i < snapshot.Count; i++)
             {
                 if (i >= this.FirstLineIndex + this.MaxLines)
                 {
                     break;
                 }
 
-                g.DrawText(this.Lines[i], this.FontFamily, this.ScaledFontSize, new PointF(this.TextPosition.X, this.TextPosition.Y + ((i - this.FirstLineIndex) * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap)))), this.FontColor, this.Bounds);
+                g.DrawText(snapshot[i], this.FontFamily, this.ScaledFontSize, new PointF(this.TextPosition.X, this.TextPosition.Y + ((i - this.FirstLineIndex) * (this.TextSize.Height + (this.TextSize.Height * this.ScaledLineGap)))), this.FontColor, this.Bounds);
             }
 
             if (this.ScrollbarWidth > 0)
             {
                 this.DrawScrollbar(g);
+            }
+        }
+
+        /// <summary>
+        /// Removes a single line of text from the text area.
+        /// </summary>
+        /// <param name="index"></param>
+        public virtual void Remove(int index)
+        {
+            this.Lines.RemoveAt(index);
+            this.FirstLineIndex -= this.FirstLineIndex > 0 ? 1 : 0;
+            this.UpdateBounds();
+            if (this.IsAutoScrollEnabled && this.Lines.Count > this.MaxLines)
+            {
+                this.ScrollTo(this.Lines.Count);
             }
         }
 

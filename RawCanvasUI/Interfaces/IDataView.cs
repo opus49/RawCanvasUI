@@ -1,5 +1,9 @@
 ﻿namespace RawCanvasUI.Interfaces
 {
+    /// <summary>
+    /// Represents a data view.
+    /// </summary>
+    /// <typeparam name="T">The type of data being viewed.</typeparam>
     public interface IDataView<T>
         where T : class
     {
@@ -9,6 +13,13 @@
         /// <param name="index">The index of the new item.</param>
         /// <param name="item">The new item</param>
         void NewItem(int index, T item);
+
+        /// <summary>
+        /// Called when an item is removed from the data model.
+        /// </summary>
+        /// <param name="index">The index of the old item.</param>
+        /// <param name="item">The old item.</param>
+        void RemoveItem(int index, T item);
 
         /// <summary>
         /// Called when the data model is reset.

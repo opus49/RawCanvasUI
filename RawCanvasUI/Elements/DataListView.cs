@@ -67,8 +67,8 @@ namespace RawCanvasUI.Elements
         /// <inheritdoc/>
         public override void Add(string text)
         {
-            this.NotifyObservers();
             base.Add(text);
+            this.NotifyObservers();
         }
 
         /// <inheritdoc/>
@@ -86,7 +86,8 @@ namespace RawCanvasUI.Elements
             }
 
             g.DrawRectangle(this.Bounds, this.BackgroundColor);
-            for (int i = this.FirstLineIndex; i < this.Lines.Count; i++)
+            List<string> snapshot = new List<string>(this.Lines);
+            for (int i = this.FirstLineIndex; i < snapshot.Count; i++)
             {
                 if (i >= this.FirstLineIndex + this.MaxLines)
                 {
@@ -99,7 +100,7 @@ namespace RawCanvasUI.Elements
                     g.DrawRectangle(this.GetLineBounds(i - this.FirstLineIndex), this.HighlightBackgroundColor);
                 }
 
-                g.DrawText(this.Lines[i].ToString(), this.FontFamily, this.ScaledFontSize, linePosition, i == this.SelectedIndex ? this.HighlightFontColor : this.FontColor, this.Bounds);
+                g.DrawText(snapshot[i].ToString(), this.FontFamily, this.ScaledFontSize, linePosition, i == this.SelectedIndex ? this.HighlightFontColor : this.FontColor, this.Bounds);
             }
 
             if (this.ScrollbarWidth > 0)
@@ -112,6 +113,31 @@ namespace RawCanvasUI.Elements
         public void NewItem(int index, T item)
         {
             this.Add(item.ToString());
+        }
+
+        /// <summary>
+        /// Removes an item from the list view.
+        /// </summary>
+        /// <param name="index">The index of the item to remove.</param>
+        /// <param name="item">The item to remove.</param>
+        public void RemoveItem(int index, T item)
+        {
+            base.Remove(index);
+            if (this.SelectedIndex != -1)
+            {
+                if (index < this.SelectedIndex)
+                {
+                    this.SelectedIndex--;
+                }
+                else if (index == this.SelectedIndex)
+                {
+                    this.SelectedIndex = -1;
+                }
+
+                this.OnSelection(this);
+            }
+
+            this.NotifyObservers();
         }
 
         /// <inheritdoc/>
