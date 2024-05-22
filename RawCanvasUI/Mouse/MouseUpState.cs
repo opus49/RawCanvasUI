@@ -32,6 +32,11 @@ namespace RawCanvasUI.Mouse
                 clickable.Click(cursor);
                 widgetManager.PressedControl = widgetManager.HoveredControl;
             }
+            else if (widgetManager.HoveredControl is IEditable editable)
+            {
+                editable.Edit(cursor);
+                widgetManager.PressedControl = null;
+            }
             else if (widgetManager.HoveredControl is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
             {
                 scrollable.ScrollbarClick(cursor);
@@ -65,6 +70,10 @@ namespace RawCanvasUI.Mouse
                 if (widgetManager.HoveredControl is IClickable)
                 {
                     cursor.SetCursorType(CursorType.Pointing);
+                }
+                else if (widgetManager.HoveredControl is IEditable)
+                {
+                    cursor.SetCursorType(CursorType.Editing);
                 }
                 else if (widgetManager.HoveredControl is IScrollable scrollable)
                 {

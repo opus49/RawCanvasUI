@@ -78,6 +78,12 @@ namespace RawCanvasUI
         /// </summary>
         public bool IsGamePaused { get; private set; } = false;
 
+        /// <summary>
+        /// Gets a value indicating whether or not the user is currently inputting text.
+        /// This is safe to check on the raw frame render event.
+        /// </summary>
+        public bool IsTextInputActive { get; private set; } = false;
+
         /// <inheritdoc />
         public Point Position { get; } = new Point(0, 0);
 
@@ -127,7 +133,8 @@ namespace RawCanvasUI
         private void Game_FrameRender(object sender, Rage.GraphicsEventArgs e)
         {
             this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
-            if (Game.Console.IsOpen || this.IsGamePaused)
+            this.IsTextInputActive = NativeFunction.Natives.UPDATE_ONSCREEN_KEYBOARD<int>() == 0;
+            if (Game.Console.IsOpen || this.IsGamePaused || this.IsTextInputActive)
             {
                 return;
             }
@@ -164,7 +171,7 @@ namespace RawCanvasUI
 
         private void Game_RawFrameRender(object sender, Rage.GraphicsEventArgs e)
         {
-            if (!this.IsGamePaused)
+            if (!this.IsGamePaused && !this.IsTextInputActive)
             {
                 this.widgetManager.Draw(e.Graphics);
                 if (this.IsInteractive)
