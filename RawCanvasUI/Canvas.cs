@@ -17,12 +17,14 @@ namespace RawCanvasUI
         private readonly WidgetManager widgetManager;
         private bool isInteractive = false;
         private bool isInteractiveModeJustExited = false;
+        private bool isFakePauseEnabled = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Canvas"/> class.
         /// </summary>
-        public Canvas()
+        public Canvas(bool isFakePauseEnabled = false)
         {
+            this.isFakePauseEnabled = isFakePauseEnabled;
             this.UUID = $"canvas-{Guid.NewGuid()}";
             this.widgetManager = new WidgetManager();
             this.Cursor = new Cursor()
@@ -63,27 +65,38 @@ namespace RawCanvasUI
                     if (this.isInteractive)
                     {
                         NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(false);
+                        if (this.isFakePauseEnabled)
+                        {
+                            Game.IsPaused = true;
+                            this.IsFakePaused = true;
+                        }
                     }
                     else
                     {
                         NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(true);
                         this.isInteractiveModeJustExited = true;
+                        if (this.IsFakePaused)
+                        {
+                            Game.IsPaused = false;
+                            this.IsFakePaused = false;
+                        }
                     }
                 }
             }
         }
 
         /// <summary>
+        /// Gets a value indicating whether the canvas is only fake paused.
+        /// This allows the canvas to continue drawing while other plugins
+        /// think the game is paused, thus allowing for clean keyboard input.
+        /// </summary>
+        public bool IsFakePaused { get; private set; } = false;
+
+        /// <summary>
         /// Gets a value indicating whether or not the game is paused.
         /// This is safe to check on the raw frame render event.
         /// </summary>
         public bool IsGamePaused { get; private set; } = false;
-
-        /// <summary>
-        /// Gets a value indicating whether or not the user is currently inputting text.
-        /// This is safe to check on the raw frame render event.
-        /// </summary>
-        public bool IsTextInputActive { get; private set; } = false;
 
         /// <inheritdoc />
         public Point Position { get; } = new Point(0, 0);
@@ -130,9 +143,8 @@ namespace RawCanvasUI
 
         private void Game_FrameRender(object sender, Rage.GraphicsEventArgs e)
         {
-            this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
-            this.IsTextInputActive = NativeFunction.Natives.UPDATE_ONSCREEN_KEYBOARD<int>() == 0;
-            if (Game.Console.IsOpen || this.IsGamePaused || this.IsTextInputActive)
+            this.IsGamePaused = (Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>()) && !this.IsFakePaused;
+            if (Game.Console.IsOpen || this.IsGamePaused)
             {
                 return;
             }
@@ -170,7 +182,7 @@ namespace RawCanvasUI
 
         private void Game_RawFrameRender(object sender, Rage.GraphicsEventArgs e)
         {
-            if (!this.IsGamePaused && !this.IsTextInputActive)
+            if (!this.IsGamePaused)
             {
                 this.widgetManager.Draw(e.Graphics);
                 if (this.IsInteractive)
@@ -186,6 +198,7 @@ namespace RawCanvasUI
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorY);
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorScrollUp);
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorScrollDown);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.FrontendPause);
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.VehicleAim);
             Game.DisableControlAction(0, GameControl.CursorX, true);
             Game.DisableControlAction(0, GameControl.CursorY, true);
@@ -197,6 +210,7 @@ namespace RawCanvasUI
             Game.DisableControlAction(0, GameControl.WeaponWheelPrev, true);
             Game.DisableControlAction(0, GameControl.Attack, true);
             Game.DisableControlAction(0, GameControl.Attack2, true);
+            Game.DisableControlAction(0, GameControl.FrontendPause, true);
             Game.DisableControlAction(0, GameControl.Reload, true);
             Game.DisableControlAction(0, GameControl.MeleeAttack1, true);
             Game.DisableControlAction(0, GameControl.MeleeAttack2, true);
@@ -213,7 +227,7 @@ namespace RawCanvasUI
             {
                 Logging.Debug("Canvas: Adding modal to widget manager");
                 e.Modal.Parent = this;
-                e.Modal.Center();
+                e.Modal.MoveTo(new Point((int)Constants.CanvasWidth / 2 - e.Modal.Width / 2, (int)Constants.CanvasHeight / 2 - e.Modal.Width / 2));
                 this.widgetManager.Show(e.Modal);
             }
             else

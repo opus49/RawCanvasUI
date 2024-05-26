@@ -152,7 +152,7 @@ namespace RawCanvasUI.Util
         /// <param name="cursor">The cursor to check.</param>
         public void UpdateHoveredWidget(Cursor cursor)
         {
-            if (this.HoveredWidget == null || this.IsModalVisible || this.HoveredWidget.Contains(cursor))
+            if (this.HoveredWidget == null || !this.HoveredWidget.IsVisible || !this.HoveredWidget.Contains(cursor))
             {
                 this.HoveredWidget = this.GetMousedOverWidget(cursor);
             }
@@ -180,6 +180,7 @@ namespace RawCanvasUI.Util
         internal void Show(IModal modal)
         {
             this.HoveredControl = null;
+            this.HoveredWidget = null;
             if (!this.modals.Contains(modal))
             {
                 Logging.Info("WidgetManager adding modal");
@@ -206,7 +207,7 @@ namespace RawCanvasUI.Util
             {
                 for (int i = this.widgets.Count - 1; i >= 0; i--)
                 {
-                    if (this.widgets[i].Contains(cursor))
+                    if (this.widgets[i].IsVisible && this.widgets[i].Contains(cursor))
                     {
                         return this.widgets[i];
                     }

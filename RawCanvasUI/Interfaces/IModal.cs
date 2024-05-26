@@ -6,8 +6,6 @@
 
         string Result { get; }
 
-        void Center();
-
         void Dispose();
 
         void Hide();
