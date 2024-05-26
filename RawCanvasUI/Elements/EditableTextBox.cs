@@ -46,7 +46,6 @@ namespace RawCanvasUI.Elements
         {
             GameFiber.StartNew(delegate
             {
-                Game.FadeScreenOut(500);
                 NativeFunction.Natives.DISABLE_ALL_CONTROL_ACTIONS(2);
                 NativeFunction.Natives.DISPLAY_ONSCREEN_KEYBOARD(true, "FMMC_KEY_TIP8", 0, this.Text, 0, 0, 0, 300);
                 GameFiber.WaitWhile(() => NativeFunction.Natives.UPDATE_ONSCREEN_KEYBOARD<int>() == 0);
@@ -57,7 +56,6 @@ namespace RawCanvasUI.Elements
                     this.Text = result;
                     this.NotifyObservers();
                 }
-                Game.FadeScreenIn(500);
             }, "rcui-editable-text-box");
         }
 

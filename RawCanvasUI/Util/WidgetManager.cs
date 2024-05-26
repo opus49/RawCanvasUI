@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RawCanvasUI.Elements;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
 using RawCanvasUI.Style;
@@ -14,6 +13,7 @@ namespace RawCanvasUI.Util
     internal class WidgetManager
     {
         private readonly List<IWidget> widgets = new List<IWidget>();
+        private readonly List<IModal> modals = new List<IModal>();
         private MouseState mouseState = new MouseUpState();
 
         /// <summary>
@@ -25,6 +25,14 @@ namespace RawCanvasUI.Util
         /// Gets or sets the widget that is currently being hovered.
         /// </summary>
         public IWidget HoveredWidget { get; set; } = null;
+
+        public bool IsModalVisible
+        {
+            get
+            {
+                return this.modals.Any(x => x.IsVisible);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the control that was under the mouse when it was pressed.
@@ -91,6 +99,12 @@ namespace RawCanvasUI.Util
         public void Draw(Rage.Graphics g)
         {
             this.widgets.Where(x => x.IsVisible).ToList().ForEach(x => x.Draw(g));
+            this.modals.Where(x => x.IsVisible).ToList().ForEach (x => x.Draw(g));
+        }
+
+        public IModal GetActiveModal()
+        {
+            return this.modals.LastOrDefault(x => x.IsVisible);
         }
 
         /// <summary>
@@ -138,7 +152,7 @@ namespace RawCanvasUI.Util
         /// <param name="cursor">The cursor to check.</param>
         public void UpdateHoveredWidget(Cursor cursor)
         {
-            if (this.HoveredWidget == null || !this.HoveredWidget.Contains(cursor))
+            if (this.HoveredWidget == null || this.IsModalVisible || this.HoveredWidget.Contains(cursor))
             {
                 this.HoveredWidget = this.GetMousedOverWidget(cursor);
             }
@@ -150,6 +164,27 @@ namespace RawCanvasUI.Util
         public void UpdateWidgetBounds()
         {
             this.widgets.ForEach(x => x.UpdateBounds());
+            this.modals.ForEach(x => x.UpdateBounds());
+        }
+
+        internal void Dispose(IModal modal)
+        {
+            this.modals.Remove(modal);
+        }
+
+        internal void DisposeAll()
+        {
+            this.modals.Clear();
+        }
+        
+        internal void Show(IModal modal)
+        {
+            this.HoveredControl = null;
+            if (!this.modals.Contains(modal))
+            {
+                Logging.Info("WidgetManager adding modal");
+                this.modals.Add(modal);
+            }
         }
 
         private IControl GetHoveredControl(IWidget widget, Cursor cursor)
@@ -159,11 +194,22 @@ namespace RawCanvasUI.Util
 
         private IWidget GetMousedOverWidget(Cursor cursor)
         {
-            for (int i = this.widgets.Count - 1; i >= 0; i--)
+            if (this.IsModalVisible)
             {
-                if (this.widgets[i].Contains(cursor))
+                var activeModal = this.GetActiveModal();
+                if (activeModal != null && activeModal.Contains(cursor))
                 {
-                    return this.widgets[i];
+                    return activeModal;
+                }
+            }
+            else
+            {
+                for (int i = this.widgets.Count - 1; i >= 0; i--)
+                {
+                    if (this.widgets[i].Contains(cursor))
+                    {
+                        return this.widgets[i];
+                    }
                 }
             }
 

@@ -1,5 +1,6 @@
 ﻿using Rage;
 using Rage.Native;
+using RawCanvasUI.Events;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
 using RawCanvasUI.Util;
@@ -118,10 +119,7 @@ namespace RawCanvasUI
             TextureHandler.Load(this.UUID, texturePath);
             this.widgetManager.ApplyStyle(stylesheetPath);
             this.UpdateBounds();
-            Rage.Game.FrameRender -= this.Game_FrameRender;
-            Rage.Game.RawFrameRender -= this.Game_RawFrameRender;
-            Rage.Game.FrameRender += this.Game_FrameRender;
-            Rage.Game.RawFrameRender += this.Game_RawFrameRender;
+            this.SubscribeEvents();
         }
 
         /// <inheritdoc />
@@ -144,6 +142,7 @@ namespace RawCanvasUI
                 if (this.isInteractiveModeJustExited)
                 {
                     this.Cursor.ForceMouseRelease();
+                    this.widgetManager.DisposeAll();
                     this.widgetManager.HandleMouseEvents(this.Cursor);
                     this.isInteractiveModeJustExited = false;
                 }
@@ -205,6 +204,43 @@ namespace RawCanvasUI
             Game.DisableControlAction(0, GameControl.VehicleAim, true);
             Game.DisableControlAction(0, GameControl.VehicleAttack, true);
             Game.DisableControlAction(0, GameControl.VehicleAttack2, true);
+        }
+
+        private void ModalEventHandler_OnShowModal(object sender, ModalEventArgs e)
+        {
+            Game.LogTrivial("Canvas detected OnShowModal event");
+            if (e.Modal.CanvasUUID == this.UUID)
+            {
+                Logging.Debug("Canvas: Adding modal to widget manager");
+                e.Modal.Parent = this;
+                e.Modal.Center();
+                this.widgetManager.Show(e.Modal);
+            }
+            else
+            {
+                Game.LogTrivial("modal is from a different canvas");
+            }
+        }
+
+        private void ModalEventHandler_OnDisposeModal(object sender, ModalEventArgs e)
+        {
+            if (e.Modal.CanvasUUID == this.UUID)
+            {
+                Logging.Debug("Canvas: disposing modal");
+                this.widgetManager.Dispose(e.Modal);
+            }
+        }
+
+        private void SubscribeEvents()
+        {
+            Game.FrameRender -= this.Game_FrameRender;
+            Game.RawFrameRender -= this.Game_RawFrameRender;
+            Game.FrameRender += this.Game_FrameRender;
+            Game.RawFrameRender += this.Game_RawFrameRender;
+            ModalEventHandler.OnDisposeModal -= ModalEventHandler_OnDisposeModal;
+            ModalEventHandler.OnShowModal -= ModalEventHandler_OnShowModal;
+            ModalEventHandler.OnDisposeModal += ModalEventHandler_OnDisposeModal;
+            ModalEventHandler.OnShowModal += ModalEventHandler_OnShowModal;
         }
 
         private void UpdateBounds()
