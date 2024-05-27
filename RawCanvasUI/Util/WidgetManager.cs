@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using RawCanvasUI.Interfaces;
+using RawCanvasUI.Keyboard;
 using RawCanvasUI.Mouse;
 using RawCanvasUI.Style;
 
@@ -14,7 +15,27 @@ namespace RawCanvasUI.Util
     {
         private readonly List<IWidget> widgets = new List<IWidget>();
         private readonly List<IModal> modals = new List<IModal>();
+        private readonly KeyboardHandler keyboardHandler = new KeyboardHandler();
         private MouseState mouseState = new MouseUpState();
+        private IFocusable focusedControl = null;
+        private IControl pressedControl = null;
+
+        /// <summary>
+        /// Gets or sets the control that is currently focused.
+        /// </summary>
+        public IFocusable FocusedControl
+        {
+            get => this.focusedControl;
+            set
+            {
+                if (this.focusedControl != value)
+                {
+                    this.focusedControl?.SetFocus(false);
+                    this.focusedControl = value;
+                    this.focusedControl?.SetFocus(true);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the control that is currently being hovered.
@@ -37,7 +58,28 @@ namespace RawCanvasUI.Util
         /// <summary>
         /// Gets or sets the control that was under the mouse when it was pressed.
         /// </summary>
-        public IControl PressedControl { get; set; } = null;
+        public IControl PressedControl 
+        {
+            get => this.pressedControl;
+            set
+            {
+                if (this.pressedControl != value)
+                {
+                    this.FocusedControl = null;
+                    if (value is IEditable editableControl)
+                    {
+                        this.FocusedControl = editableControl;
+                        this.keyboardHandler.Start(editableControl);
+                    }
+                    else
+                    {
+                        this.keyboardHandler.Stop();
+                    }
+
+                    this.pressedControl = value;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the widget that is currently being pressed on by the mouse.

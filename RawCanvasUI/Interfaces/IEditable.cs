@@ -2,11 +2,8 @@
 
 namespace RawCanvasUI.Interfaces
 {
-    public  interface IEditable : IControl, IObservable
+    public  interface IEditable : IFocusable
     {
-        /// <summary>
-        /// Executed when the user edits the control.
-        /// </summary>
-        void Edit(Cursor cursor);
+        void HandleInput(string input);
     }
 }

@@ -1,6 +1,4 @@
-﻿using Rage;
-using Rage.Native;
-using RawCanvasUI.Interfaces;
+﻿using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
 using System.Collections.Generic;
 using System.Drawing;
@@ -37,26 +35,32 @@ namespace RawCanvasUI.Elements
             this.observers.Add(observer);
         }
 
+        public void Click(Cursor cursor)
+        {
+        }
+
         public bool Contains(Cursor cursor)
         {
             return this.Bounds.Contains(cursor.Bounds.Location);
         }
 
-        public void Edit(Cursor cursor)
+        public void HandleInput(string input)
         {
-            GameFiber.StartNew(delegate
+            if (input == "[Esc]" || input == "[Tab]")
             {
-                NativeFunction.Natives.DISABLE_ALL_CONTROL_ACTIONS(2);
-                NativeFunction.Natives.DISPLAY_ONSCREEN_KEYBOARD(true, "FMMC_KEY_TIP8", 0, this.Text, 0, 0, 0, 300);
-                GameFiber.WaitWhile(() => NativeFunction.Natives.UPDATE_ONSCREEN_KEYBOARD<int>() == 0);
-                NativeFunction.Natives.ENABLE_ALL_CONTROL_ACTIONS(2);
-                string result = NativeFunction.Natives.GET_ONSCREEN_KEYBOARD_RESULT<string>();
-                if (result != null)
+                this.SetFocus(false);
+            }
+            else if (input == "[Back]")
+            {
+                if (this.Text.Length > 0)
                 {
-                    this.Text = result;
-                    this.NotifyObservers();
+                    this.Text = this.Text.Substring(0, this.Text.Length - 1);
                 }
-            }, "rcui-editable-text-box");
+            }
+            else
+            {
+                this.Text += input;
+            }
         }
 
         public void NotifyObservers()
@@ -68,6 +72,9 @@ namespace RawCanvasUI.Elements
         {
             this.observers.Remove(observer);
         }
+
+        public void SetFocus(bool isFocused)
+        {
+        }
     }
 }
-

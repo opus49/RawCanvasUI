@@ -34,8 +34,7 @@ namespace RawCanvasUI.Mouse
             }
             else if (widgetManager.HoveredControl is IEditable editable)
             {
-                editable.Edit(cursor);
-                widgetManager.PressedControl = null;
+                widgetManager.PressedControl = editable;
             }
             else if (widgetManager.HoveredControl is IScrollable scrollable && scrollable.ScrollbarContains(cursor))
             {

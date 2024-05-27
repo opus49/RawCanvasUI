@@ -51,6 +51,11 @@ namespace RawCanvasUI
         public const long LongClickDuration = 150;
 
         /// <summary>
+        /// The length of time in milliseconds that constitutes a long keypress.
+        /// </summary>
+        public const long LongKeypressDuration = 500;
+
+        /// <summary>
         /// The minimum allowable scaling factor (as a percentage).
         /// </summary>
         public const float MinScale = 0.1f;
