@@ -9,6 +9,7 @@ namespace RawCanvasUI.Keyboard
 
         static KeyValidator()
         {
+            Logging.Debug("building Keyvalidator valid keys");
             validKeys = new HashSet<Keys>();
 
             for (char c = 'A'; c <= 'Z'; c++)
@@ -36,6 +37,8 @@ namespace RawCanvasUI.Keyboard
             validKeys.Add(Keys.OemMinus);  // '-'
             validKeys.Add(Keys.Oemcomma);  // ','
             validKeys.Add(Keys.OemPeriod); // '.'
+
+            Logging.Debug($"added {validKeys.Count} valid keys");
         }
 
         public static bool IsValidKey(Keys key)

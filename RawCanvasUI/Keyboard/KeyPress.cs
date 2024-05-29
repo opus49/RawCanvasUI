@@ -3,14 +3,14 @@ using System.Windows.Forms;
 
 namespace RawCanvasUI.Keyboard
 {
-    internal class KeyPressInfo
+    internal class KeyPress
     {
         public Keys Key { get; private set; }
-        public DateTime PressedTime { get; private set; }
+        public long PressedTime { get; private set; }
         public int RepeatCount { get; private set; }
         public bool IsShiftDown { get; private set; }
 
-        public KeyPressInfo(Keys key, DateTime pressedTime, bool isShiftDown)
+        public KeyPress(Keys key, long pressedTime, bool isShiftDown)
         {
             Key = key;
             PressedTime = pressedTime;
@@ -23,9 +23,9 @@ namespace RawCanvasUI.Keyboard
             this.RepeatCount++;
         }
 
-        public bool ShouldProcessKey(DateTime now)
+        public bool ShouldProcessKey(long currentTime)
         {
-            return this.RepeatCount > 1 || (now - PressedTime).TotalMilliseconds > Constants.LongKeypressDuration;
+            return this.RepeatCount > 1 || (currentTime - this.PressedTime) > Constants.LongKeypressDuration;
         }
 
         public override String ToString()

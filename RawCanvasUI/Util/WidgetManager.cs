@@ -15,27 +15,24 @@ namespace RawCanvasUI.Util
     {
         private readonly List<IWidget> widgets = new List<IWidget>();
         private readonly List<IModal> modals = new List<IModal>();
-        private readonly KeyboardHandler keyboardHandler = new KeyboardHandler();
+        private readonly KeyboardHandler keyboardHandler;
         private MouseState mouseState = new MouseUpState();
-        private IFocusable focusedControl = null;
-        private IControl pressedControl = null;
+
+        public WidgetManager(Canvas canvas)
+        {
+            this.Canvas = canvas;
+            this.keyboardHandler = new KeyboardHandler(this);
+        }
+
+        /// <summary>
+        /// Gets the Canvas assigned to this widget manager.
+        /// </summary>
+        public Canvas Canvas { get; private set; }
 
         /// <summary>
         /// Gets or sets the control that is currently focused.
         /// </summary>
-        public IFocusable FocusedControl
-        {
-            get => this.focusedControl;
-            set
-            {
-                if (this.focusedControl != value)
-                {
-                    this.focusedControl?.SetFocus(false);
-                    this.focusedControl = value;
-                    this.focusedControl?.SetFocus(true);
-                }
-            }
-        }
+        public IFocusable FocusedControl { get; private set; } = null;
 
         /// <summary>
         /// Gets or sets the control that is currently being hovered.
@@ -47,6 +44,9 @@ namespace RawCanvasUI.Util
         /// </summary>
         public IWidget HoveredWidget { get; set; } = null;
 
+        /// <summary>
+        /// Gets a value indicating whether or not any modals are visible.
+        /// </summary>
         public bool IsModalVisible
         {
             get
@@ -58,28 +58,7 @@ namespace RawCanvasUI.Util
         /// <summary>
         /// Gets or sets the control that was under the mouse when it was pressed.
         /// </summary>
-        public IControl PressedControl 
-        {
-            get => this.pressedControl;
-            set
-            {
-                if (this.pressedControl != value)
-                {
-                    this.FocusedControl = null;
-                    if (value is IEditable editableControl)
-                    {
-                        this.FocusedControl = editableControl;
-                        this.keyboardHandler.Start(editableControl);
-                    }
-                    else
-                    {
-                        this.keyboardHandler.Stop();
-                    }
-
-                    this.pressedControl = value;
-                }
-            }
-        }
+        public IControl PressedControl { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the widget that is currently being pressed on by the mouse.
@@ -95,6 +74,7 @@ namespace RawCanvasUI.Util
         {
             try
             {
+                Logging.Info("WidgetManager applying styles from stylesheet");
                 var stylesheet = new Stylesheet(stylesheetPath);
                 this.widgets.ForEach(x => x.ApplyStyle(stylesheet));
             }
@@ -144,6 +124,10 @@ namespace RawCanvasUI.Util
             this.modals.Where(x => x.IsVisible).ToList().ForEach (x => x.Draw(g));
         }
 
+        /// <summary>
+        /// Gets the active modal.
+        /// </summary>
+        /// <returns></returns>
         public IModal GetActiveModal()
         {
             return this.modals.LastOrDefault(x => x.IsVisible);
@@ -156,6 +140,28 @@ namespace RawCanvasUI.Util
         public MouseState GetMouseState()
         {
             return this.mouseState;
+        }
+
+        /// <summary>
+        /// Handles keyboard input by routing to the appropriate control.
+        /// </summary>
+        /// <param name="input">The text input.</param>
+        public void HandleKeyboardInput(string input)
+        {
+            if (input == "[Esc]")
+            {
+                Logging.Debug("WidgetManager received ESCAPE from KeyboardHandler, existing interactive mode");
+                this.Canvas.IsInteractive = false;
+            }
+            else if (input == "[Tab]")
+            {
+                Logging.Debug("Widgetmanager received TAB from KeyboardHandler, updating focus");
+                this.UpdateFocusedControl(null);
+            }
+            else if (this.FocusedControl is IEditable editable)
+            {
+                editable.HandleInput(input);
+            }
         }
 
         /// <summary>
@@ -227,6 +233,27 @@ namespace RawCanvasUI.Util
             {
                 Logging.Info("WidgetManager adding modal");
                 this.modals.Add(modal);
+            }
+        }
+
+        internal void UpdateFocusedControl(IControl control)
+        {
+            if (control == this.FocusedControl)
+            {
+                return;
+            }
+
+            this.FocusedControl?.SetFocus(false);
+            this.FocusedControl = control as IFocusable;
+            this.FocusedControl?.SetFocus(true);
+
+            if (control is IEditable)
+            {
+                this.keyboardHandler.Start();
+            }
+            else
+            {
+                this.keyboardHandler.Stop();
             }
         }
 

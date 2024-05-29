@@ -37,6 +37,7 @@ namespace RawCanvasUI.Elements
 
         public void Click(Cursor cursor)
         {
+            Logging.Debug("EditableTextBox clicked!");
         }
 
         public bool Contains(Cursor cursor)
@@ -46,11 +47,7 @@ namespace RawCanvasUI.Elements
 
         public void HandleInput(string input)
         {
-            if (input == "[Esc]" || input == "[Tab]")
-            {
-                this.SetFocus(false);
-            }
-            else if (input == "[Back]")
+            if (input == "[Back]")
             {
                 if (this.Text.Length > 0)
                 {
@@ -75,6 +72,8 @@ namespace RawCanvasUI.Elements
 
         public void SetFocus(bool isFocused)
         {
+            var result = isFocused ? "true" : "false";
+            Logging.Debug($"EditableTextBox was told to set focus to {result}");
         }
     }
 }
