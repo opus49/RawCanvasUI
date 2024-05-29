@@ -1,4 +1,5 @@
 ﻿using RawCanvasUI.Interfaces;
+using RawCanvasUI.Keyboard;
 using RawCanvasUI.Mouse;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,6 +16,7 @@ namespace RawCanvasUI.Elements
             this.Position = new Point(x, y);
             this.Height = height;
             this.Width = width;
+            this.Caret = new Caret(this);
         }
 
         public EditableTextBox(string id, string text, int x, int y, int width, int height) : base(text, x, y, width, height)
@@ -26,9 +28,35 @@ namespace RawCanvasUI.Elements
             this.Width = width;
         }
 
+        public Caret Caret { get; private set; } = null;
+
         public bool IsEnabled { get; set; } = true;
 
         public string Id { get; }
+
+        /// <inheritdoc/>
+        public override IParent Parent
+        {
+            get => base.Parent;
+            set
+            {
+                base.Parent = value;
+                if (value is IWidget widget)
+                {
+                    widget.Add(this.Caret);
+                }
+            }
+        }
+
+        public override string Text
+        {
+            get => base.Text;
+            set
+            {
+                base.Text = value;
+                this.Caret.UpdateBounds();
+            }
+        }
 
         public void AddObserver(IObserver observer)
         {
@@ -37,12 +65,16 @@ namespace RawCanvasUI.Elements
 
         public void Click(Cursor cursor)
         {
-            Logging.Debug("EditableTextBox clicked!");
         }
 
         public bool Contains(Cursor cursor)
         {
             return this.Bounds.Contains(cursor.Bounds.Location);
+        }
+
+        public RectangleF GetCaretBounds()
+        {
+            return new RectangleF();
         }
 
         public void HandleInput(string input)
@@ -74,6 +106,14 @@ namespace RawCanvasUI.Elements
         {
             var result = isFocused ? "true" : "false";
             Logging.Debug($"EditableTextBox was told to set focus to {result}");
+            this.Caret.IsVisible = isFocused;
+            this.Caret.UpdateBounds();
+        }
+
+        public override void UpdateBounds()
+        {
+            base.UpdateBounds();
+            this.Caret.UpdateBounds();
         }
     }
 }

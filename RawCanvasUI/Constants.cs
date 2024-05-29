@@ -18,6 +18,11 @@ namespace RawCanvasUI
         public const float CanvasHeight = 1080f;
 
         /// <summary>
+        /// The length of time in milliseconds to blink the caret on and off.
+        /// </summary>
+        public const long CaretBlinkRate = 500;
+
+        /// <summary>
         /// A lookup table for font leadings.
         /// </summary>
         public static readonly Dictionary<string, float> Leading = new Dictionary<string, float>()

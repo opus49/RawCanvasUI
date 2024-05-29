@@ -111,6 +111,12 @@ namespace RawCanvasUI.Widgets
         /// <inheritdoc/>
         public virtual void Add(IDrawable item)
         {
+            if (this.Items.Contains(item))
+            {
+                Logging.Warning($"Widget {this} already contains item {item}");
+                return;
+            }
+
             item.Parent = this;
             this.Items.Add(item);
             if (item is IObservable observable)

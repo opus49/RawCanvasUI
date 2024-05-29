@@ -27,7 +27,7 @@ namespace RawCanvasUI.Elements
         public float ScaledFontSize { get; protected set; } = Defaults.FontSize;
 
         /// <inheritdoc/>
-        public string Text
+        public virtual string Text
         { 
             get => this.text;
             set

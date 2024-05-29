@@ -18,7 +18,7 @@ namespace RawCanvasUI.Elements
         public virtual bool IsVisible { get; set; } = true;
 
         /// <inheritdoc/>
-        public IParent Parent { get; set; }
+        public virtual IParent Parent { get; set; }
 
         /// <inheritdoc/>
         public Point Position { get; protected set; } = default;
