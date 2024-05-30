@@ -1,14 +1,15 @@
 ﻿using RawCanvasUI.Interfaces;
-using RawCanvasUI.Keyboard;
 using RawCanvasUI.Mouse;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.Remoting.Services;
 
 namespace RawCanvasUI.Elements
 {
     public class EditableTextBox : TextBox, IEditable
     {
         private readonly List<IObserver> observers = new List<IObserver>();
+        private int caretIndex = 0;
 
         public EditableTextBox(string id, int x, int y, int width, int height) : base(x, y, width, height)
         {
@@ -16,7 +17,6 @@ namespace RawCanvasUI.Elements
             this.Position = new Point(x, y);
             this.Height = height;
             this.Width = width;
-            this.Caret = new Caret(this);
         }
 
         public EditableTextBox(string id, string text, int x, int y, int width, int height) : base(text, x, y, width, height)
@@ -28,43 +28,23 @@ namespace RawCanvasUI.Elements
             this.Width = width;
         }
 
-        public Caret Caret { get; private set; } = null;
-
         public bool IsEnabled { get; set; } = true;
 
         public string Id { get; }
 
-        /// <inheritdoc/>
-        public override IParent Parent
-        {
-            get => base.Parent;
-            set
-            {
-                base.Parent = value;
-                if (value is IWidget widget)
-                {
-                    widget.Add(this.Caret);
-                }
-            }
-        }
-
-        public override string Text
-        {
-            get => base.Text;
-            set
-            {
-                base.Text = value;
-                this.Caret.UpdateBounds();
-            }
-        }
-
         public void AddObserver(IObserver observer)
         {
-            this.observers.Add(observer);
+            if (!this.observers.Contains(observer))
+            {
+                this.observers.Add(observer);
+            }
         }
 
         public void Click(Cursor cursor)
         {
+            Logging.Debug("EditableTextBox clicked!");
+            this.UpdateCaretIndex(cursor);
+            this.NotifyObservers();
         }
 
         public bool Contains(Cursor cursor)
@@ -74,22 +54,41 @@ namespace RawCanvasUI.Elements
 
         public RectangleF GetCaretBounds()
         {
-            return new RectangleF();
+            if (this.caretIndex > this.Text.Length)
+            {
+                this.caretIndex = this.Text.Length;
+            }
+
+            var text = this.caretIndex > 0 ? this.Text.Substring(0, this.caretIndex) : "";
+            var textSize = Rage.Graphics.MeasureText(text, this.FontFamily, this.ScaledFontSize);
+            var position = new PointF(this.TextPosition.X + textSize.Width + 2f, this.TextPosition.Y - 2f);
+            return new RectangleF(position, new SizeF(this.Parent.Scale.Width, this.TextSize.Height * 1.5f));
         }
 
         public void HandleInput(string input)
         {
             if (input == "[Back]")
             {
-                if (this.Text.Length > 0)
+                if (this.Text.Length > 0 && this.caretIndex > 0)
                 {
-                    this.Text = this.Text.Substring(0, this.Text.Length - 1);
+                    this.caretIndex--;
+                    this.Text = this.Text.Remove(this.caretIndex, 1);
                 }
             }
-            else
+            else if (input != "[Enter]")
             {
-                this.Text += input;
+                if (this.caretIndex == this.Text.Length)
+                {
+                    this.Text += input;
+                }
+                else
+                {
+                    this.Text = this.Text.Insert(this.caretIndex, input);
+                }
+                this.caretIndex++;
             }
+
+            this.NotifyObservers();
         }
 
         public void NotifyObservers()
@@ -102,18 +101,27 @@ namespace RawCanvasUI.Elements
             this.observers.Remove(observer);
         }
 
-        public void SetFocus(bool isFocused)
+        private void UpdateCaretIndex(Cursor cursor)
         {
-            var result = isFocused ? "true" : "false";
-            Logging.Debug($"EditableTextBox was told to set focus to {result}");
-            this.Caret.IsVisible = isFocused;
-            this.Caret.UpdateBounds();
-        }
+            if (this.Text.Length == 0)
+            {
+                Logging.Debug("Setting caret index to zero since text length is zero");
+                this.caretIndex = 0;
+                return;
+            }
 
-        public override void UpdateBounds()
-        {
-            base.UpdateBounds();
-            this.Caret.UpdateBounds();
+            for (int i = 0; i <= this.Text.Length; i++)
+            {
+                var textSize = Rage.Graphics.MeasureText(this.Text.Substring(0, i), this.FontFamily, this.ScaledFontSize);
+                if (textSize.Width + this.TextPosition.X > cursor.Bounds.X)
+                {
+                    this.caretIndex = i > 0 ? i - 1 : 0;
+                    Logging.Debug($"Setting caret index to {this.caretIndex}");
+                    return;
+                }
+            }
+
+            this.caretIndex = this.Text.Length;
         }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System.Drawing;
-using RawCanvasUI.Interfaces;
-using RawCanvasUI;
 using RawCanvasUI.Mouse;
 
 namespace RawCanvasUI.Interfaces

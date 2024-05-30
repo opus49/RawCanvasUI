@@ -80,7 +80,10 @@ namespace RawCanvasUI.Elements
         /// <param name="observer">The observer to add.</param>
         public void AddObserver(IObserver observer)
         {
-            this.observers.Add(observer);
+            if (!this.observers.Contains(observer))
+            {
+                this.observers.Add(observer);
+            }
         }
 
         /// <inheritdoc/>

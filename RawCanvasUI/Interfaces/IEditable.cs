@@ -1,9 +1,11 @@
-﻿using RawCanvasUI.Mouse;
+﻿using System.Drawing;
 
 namespace RawCanvasUI.Interfaces
 {
-    public  interface IEditable : IFocusable
+    public  interface IEditable : IClickable
     {
+        RectangleF GetCaretBounds();
+
         void HandleInput(string input);
     }
 }

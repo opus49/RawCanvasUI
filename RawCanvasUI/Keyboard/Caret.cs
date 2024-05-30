@@ -1,21 +1,26 @@
 ﻿using RawCanvasUI.Elements;
+using RawCanvasUI.Interfaces;
 using RawCanvasUI.Style;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace RawCanvasUI.Keyboard
 {
     public class Caret : RectangleElement
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
-        private readonly EditableTextBox textbox;
         private bool isBlinkedOn = true;
 
-        public Caret(EditableTextBox textbox)
+        public Caret()
             : base(Defaults.CaretColor, 0, 0)
         {
-            this.textbox = textbox;
             this.IsVisible = false;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating the target edtiable control.
+        /// </summary>
+        public IEditable Control { get; set; } = null;
 
         /// <inheritdoc/>
         public override bool IsVisible 
@@ -54,9 +59,14 @@ namespace RawCanvasUI.Keyboard
         /// <inheritdoc/>
         public override void UpdateBounds()
         {
-            if (this.textbox != null) 
+            if (this.Control != null)
             {
-                this.Bounds = this.textbox.GetCaretBounds();
+                Logging.Debug("Caret updating bounds");
+                this.Bounds = this.Control.GetCaretBounds();
+            }
+            else
+            {
+                Logging.Debug("Caret cannot update bounds due to control being null");
             }
         }
 
@@ -65,7 +75,6 @@ namespace RawCanvasUI.Keyboard
             if (stopwatch.ElapsedMilliseconds > Constants.CaretBlinkRate)
             {
                 this.isBlinkedOn = !this.isBlinkedOn;
-                Logging.Debug($"Caret flipping blinked on status to {(this.isBlinkedOn ? "true" : "false")}");
                 this.stopwatch.Restart();
             }
         }

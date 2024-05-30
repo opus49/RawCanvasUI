@@ -218,10 +218,11 @@ namespace RawCanvasUI
             Game.DisableControlAction(0, GameControl.Attack, true);
             Game.DisableControlAction(0, GameControl.Attack2, true);
             Game.DisableControlAction(0, GameControl.FrontendPause, true);
-            Game.DisableControlAction(0, GameControl.Reload, true);
             Game.DisableControlAction(0, GameControl.MeleeAttack1, true);
             Game.DisableControlAction(0, GameControl.MeleeAttack2, true);
             Game.DisableControlAction(0, GameControl.MeleeAttackAlternate, true);
+            Game.DisableControlAction(0, GameControl.Phone, true);
+            Game.DisableControlAction(0, GameControl.Reload, true);
             Game.DisableControlAction(0, GameControl.VehicleAim, true);
             Game.DisableControlAction(0, GameControl.VehicleAttack, true);
             Game.DisableControlAction(0, GameControl.VehicleAttack2, true);
