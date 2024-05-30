@@ -82,6 +82,9 @@ namespace RawCanvasUI.Keyboard
                 case Keys.Enter: return "[Enter]";
                 case Keys.Escape: return "[Esc]";
                 case Keys.Tab: return "[Tab]";
+                case Keys.Left: return "[Left]";
+                case Keys.Right: return "[Right]";
+                case Keys.Delete: return "[Delete]";
 
                 case Keys.Oem1: return this.IsShiftDown ? ":" : ";";
                 case Keys.Oem2: return this.IsShiftDown ? "?" : "/";

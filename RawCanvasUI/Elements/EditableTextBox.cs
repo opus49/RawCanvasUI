@@ -67,25 +67,46 @@ namespace RawCanvasUI.Elements
 
         public void HandleInput(string input)
         {
-            if (input == "[Back]")
+            switch (input)
             {
-                if (this.Text.Length > 0 && this.caretIndex > 0)
-                {
-                    this.caretIndex--;
-                    this.Text = this.Text.Remove(this.caretIndex, 1);
-                }
-            }
-            else if (input != "[Enter]")
-            {
-                if (this.caretIndex == this.Text.Length)
-                {
-                    this.Text += input;
-                }
-                else
-                {
-                    this.Text = this.Text.Insert(this.caretIndex, input);
-                }
-                this.caretIndex++;
+                case "[Back]":
+                    if (this.Text.Length > 0 && this.caretIndex > 0)
+                    {
+                        this.caretIndex--;
+                        this.Text = this.Text.Remove(this.caretIndex, 1);
+                    }
+                    break;
+                case "[Left]":
+                    if (this.caretIndex > 0)
+                    {
+                        this.caretIndex--;
+                    }
+                    break;
+                case "[Right]":
+                    if (this.caretIndex < this.Text.Length)
+                    {
+                        this.caretIndex++;
+                    }
+                    break;
+                case "[Delete]":
+                    if (this.Text.Length > this.caretIndex)
+                    {
+                        this.Text = this.Text.Remove(this.caretIndex, 1);
+                    }
+                    break;
+                case "[Enter]":
+                    break;
+                default:
+                    if (this.caretIndex == this.Text.Length)
+                    {
+                        this.Text += input;
+                    }
+                    else
+                    {
+                        this.Text = this.Text.Insert(this.caretIndex, input);
+                    }
+                    this.caretIndex++;
+                    break;
             }
 
             this.NotifyObservers();

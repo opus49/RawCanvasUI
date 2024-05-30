@@ -23,6 +23,9 @@ namespace RawCanvasUI.Keyboard
             validKeys.Add(Keys.Enter);
             validKeys.Add(Keys.Escape);
             validKeys.Add(Keys.Tab);
+            validKeys.Add(Keys.Left);
+            validKeys.Add(Keys.Right);
+            validKeys.Add(Keys.Delete);
 
             validKeys.Add(Keys.Oem1);      // ';:' for US
             validKeys.Add(Keys.Oem2);      // '/?' for US
