@@ -2,7 +2,6 @@
 using RawCanvasUI.Mouse;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.Remoting.Services;
 
 namespace RawCanvasUI.Elements
 {
@@ -10,6 +9,8 @@ namespace RawCanvasUI.Elements
     {
         private readonly List<IObserver> observers = new List<IObserver>();
         private int caretIndex = 0;
+        private int maxVisibleTextLength = -1;
+        private int startingVisibleIndex = 0;
 
         public EditableTextBox(string id, int x, int y, int width, int height) : base(x, y, width, height)
         {
@@ -32,6 +33,20 @@ namespace RawCanvasUI.Elements
 
         public string Id { get; }
 
+        public string VisibleText
+        {
+            get
+            {
+                if (this.maxVisibleTextLength < 0)
+                {
+                    this.UpdateMaxVisibleTextLength();
+                }
+
+                var length = System.Math.Min(this.maxVisibleTextLength, this.Text.Length - this.startingVisibleIndex);
+                return length == 0 ? "" : this.Text.Substring(this.startingVisibleIndex, length);
+            }
+        }
+
         public void AddObserver(IObserver observer)
         {
             if (!this.observers.Contains(observer))
@@ -52,14 +67,22 @@ namespace RawCanvasUI.Elements
             return this.Bounds.Contains(cursor.Bounds.Location);
         }
 
+        /// <inheritdoc/>
+        public override void Draw(Rage.Graphics g)
+        {
+            g.DrawRectangle(this.BorderBounds, this.BorderColor);
+            g.DrawRectangle(this.Bounds, this.BackgroundColor);
+            g.DrawText(this.VisibleText, this.FontFamily, this.ScaledFontSize, this.TextPosition, this.FontColor, this.Bounds);
+        }
+
         public RectangleF GetCaretBounds()
         {
-            if (this.caretIndex > this.Text.Length)
+            if (this.caretIndex > this.VisibleText.Length)
             {
-                this.caretIndex = this.Text.Length;
+                this.caretIndex = this.VisibleText.Length;
             }
 
-            var text = this.caretIndex > 0 ? this.Text.Substring(0, this.caretIndex) : "";
+            var text = this.caretIndex > 0 ? this.VisibleText.Substring(0, this.caretIndex) : "";
             var textSize = Rage.Graphics.MeasureText(text, this.FontFamily, this.ScaledFontSize);
             var position = new PointF(this.TextPosition.X + textSize.Width + 2f, this.TextPosition.Y - 2f);
             return new RectangleF(position, new SizeF(this.Parent.Scale.Width, this.TextSize.Height * 1.5f));
@@ -70,10 +93,18 @@ namespace RawCanvasUI.Elements
             switch (input)
             {
                 case "[Back]":
-                    if (this.Text.Length > 0 && this.caretIndex > 0)
+                    if (this.caretIndex > 0)
                     {
                         this.caretIndex--;
-                        this.Text = this.Text.Remove(this.caretIndex, 1);
+                        this.Text = this.Text.Remove(this.startingVisibleIndex + this.caretIndex, 1);
+                    }
+                    else
+                    {
+                        if (this.startingVisibleIndex > 0)
+                        {
+                            this.startingVisibleIndex--;
+                            this.Text = this.Text.Remove(this.startingVisibleIndex, 1);
+                        }
                     }
                     break;
                 case "[Left]":
@@ -81,31 +112,41 @@ namespace RawCanvasUI.Elements
                     {
                         this.caretIndex--;
                     }
+                    else if (this.startingVisibleIndex > 0)
+                    {
+                        this.startingVisibleIndex--;
+                    }
                     break;
                 case "[Right]":
-                    if (this.caretIndex < this.Text.Length)
+                    if (this.caretIndex < this.VisibleText.Length)
                     {
                         this.caretIndex++;
                     }
+                    else if (this.Text.Length - (this.maxVisibleTextLength + this.startingVisibleIndex) > 0)
+                    {
+                        this.startingVisibleIndex++;
+                    }
                     break;
                 case "[Delete]":
-                    if (this.Text.Length > this.caretIndex)
+                    if (this.Text.Length > this.startingVisibleIndex + this.caretIndex)
                     {
-                        this.Text = this.Text.Remove(this.caretIndex, 1);
+                        this.Text = this.Text.Remove(this.startingVisibleIndex + this.caretIndex, 1);
                     }
                     break;
                 case "[Enter]":
                     break;
                 default:
-                    if (this.caretIndex == this.Text.Length)
+                    var index = this.caretIndex + this.startingVisibleIndex;
+                    this.Text = index < this.Text.Length ? this.Text.Insert(index, input) : this.Text + input;
+
+                    if (this.caretIndex < this.maxVisibleTextLength)
                     {
-                        this.Text += input;
+                        this.caretIndex++;
                     }
                     else
                     {
-                        this.Text = this.Text.Insert(this.caretIndex, input);
+                        this.startingVisibleIndex++;
                     }
-                    this.caretIndex++;
                     break;
             }
 
@@ -122,8 +163,25 @@ namespace RawCanvasUI.Elements
             this.observers.Remove(observer);
         }
 
+        private void UpdateMaxVisibleTextLength()
+        {
+            var text = "M";
+            while (this.TextPosition.X + Rage.Graphics.MeasureText(text, this.FontFamily, this.ScaledFontSize).Width + (2 * this.Parent.Scale.Width) < this.Bounds.X + this.Bounds.Width)
+            {
+                text += "M";
+            }
+
+            this.maxVisibleTextLength = text.Length > 0 ? text.Length - 1 : 0;
+        }
+
         private void UpdateCaretIndex(Cursor cursor)
         {
+            if (cursor == null)
+            {
+                this.caretIndex = this.Text.Length;
+                return;
+            }
+
             if (this.Text.Length == 0)
             {
                 Logging.Debug("Setting caret index to zero since text length is zero");
