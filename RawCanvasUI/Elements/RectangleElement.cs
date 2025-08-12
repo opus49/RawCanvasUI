@@ -26,7 +26,7 @@ namespace RawCanvasUI.Elements
         /// <summary>
         /// Draws the rectangle onto the specified graphics object.
         /// </summary>
-        /// <param name="g">The grahpics object to draw onto.</param>
+        /// <param name="g">The graphics object to draw onto.</param>
         public override void Draw(Rage.Graphics g)
         {
             g.DrawRectangle(this.Bounds, this.Color);
