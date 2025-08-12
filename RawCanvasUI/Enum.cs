@@ -8,6 +8,7 @@
     public enum CursorType
     {
         Default,
+        Editing,
         Pointing,
         Scrolling,
     }

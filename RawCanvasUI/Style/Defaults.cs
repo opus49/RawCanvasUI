@@ -8,6 +8,7 @@ namespace RawCanvasUI.Style
         public static Color BackgroundColor = Color.White;
         public static Color BorderColor = Color.Black;
         public static float BorderWidth = 1f;
+        public static Color CaretColor = Color.Black;
         public static Color DisabledFontColor = Color.FromArgb(128, 128, 128);
         public static Color FontColor = Color.Black;
         public static string FontFamily = "Lucida Console";

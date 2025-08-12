@@ -12,7 +12,7 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
 		<PackageId>RawCanvasUI</PackageId>
-		<Version>0.4.3</Version>
+		<Version>0.5.0</Version>
 		<Authors>opus49</Authors>
 		<Company>$(Authors)</Company>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -22,7 +22,7 @@
 		<PackageReleaseNotes>https://github.com/opus49/RawCanvasUI/releases</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Description>Library for RAGEPluginHook that allows you to make interactive UI elements.</Description>
-		<Copyright>Copyright © 2023 opus49</Copyright>
+		<Copyright>Copyright © 2023-25 opus49</Copyright>
 		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(Configuration.StartsWith('Debug'))">
@@ -33,6 +33,7 @@
 		<Reference Include="System" />
 		<Reference Include="System.Core" />
 		<Reference Include="System.Drawing" />
+		<Reference Include="System.Windows.Forms" />
 		<Reference Include="System.Xml.Linq" />
 		<Reference Include="System.Data.DataSetExtensions" />
 		<Reference Include="Microsoft.CSharp" />

@@ -80,6 +80,9 @@ namespace RawCanvasUI.Mouse
                 case CursorType.Pointing:
                     this.SetTextureName("cursor/pointing.png");
                     break;
+                case CursorType.Editing:
+                    this.SetTextureName("cursor/editing.png");
+                    break;
             }
         }
 

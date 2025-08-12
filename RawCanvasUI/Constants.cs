@@ -18,6 +18,11 @@ namespace RawCanvasUI
         public const float CanvasHeight = 1080f;
 
         /// <summary>
+        /// The length of time in milliseconds to blink the caret on and off.
+        /// </summary>
+        public const long CaretBlinkRate = 500;
+
+        /// <summary>
         /// A lookup table for font leadings.
         /// </summary>
         public static readonly Dictionary<string, float> Leading = new Dictionary<string, float>()
@@ -49,6 +54,11 @@ namespace RawCanvasUI
         /// The length of time in milliseconds that constitutes a long click for dragging.
         /// </summary>
         public const long LongClickDuration = 150;
+
+        /// <summary>
+        /// The length of time in milliseconds that constitutes a long keypress.
+        /// </summary>
+        public const long LongKeypressDuration = 500;
 
         /// <summary>
         /// The minimum allowable scaling factor (as a percentage).

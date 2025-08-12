@@ -23,13 +23,27 @@ namespace RawCanvasUI
 
     internal static class Logging
     {
+
+        /// <summary>
+        /// Gets or sets the current logging level.
+        /// </summary>
+        public static LoggingLevel CurrentLevel { get; set; } = LoggingLevel.INFO;
+
+        /// <summary>
+        /// Gets or set the CanvasUUID.
+        /// </summary>
+        public static string CanvasName { get; set; } = "unknown";
+
         /// <summary>
         /// Send a DEBUG level log messsage.
         /// </summary>
         /// <param name="message">The message to be sent.</param>
         public static void Debug(string message)
         {
-            Log(LoggingLevel.DEBUG, message);
+            if (CurrentLevel <= LoggingLevel.DEBUG)
+            {
+                Log(LoggingLevel.DEBUG, message);
+            }
         }
 
         /// <summary>
@@ -39,9 +53,12 @@ namespace RawCanvasUI
         /// <param name="ex">The Exception raised.</param>
         public static void Error(string message, Exception ex)
         {
-            Log(LoggingLevel.ERROR, message);
-            Log(LoggingLevel.ERROR, ex.Message);
-            Log(LoggingLevel.DEBUG, ex.StackTrace);
+            if (CurrentLevel <= LoggingLevel.ERROR)
+            {
+                Log(LoggingLevel.ERROR, message);
+                Log(LoggingLevel.ERROR, ex.Message);
+                Log(LoggingLevel.DEBUG, ex.StackTrace);
+            }
         }
 
         /// <summary>
@@ -50,7 +67,10 @@ namespace RawCanvasUI
         /// <param name="message">The message to be sent.</param>
         public static void Info(string message)
         {
-            Log(LoggingLevel.INFO, message);
+            if (CurrentLevel <= LoggingLevel.INFO)
+            {
+                Log(LoggingLevel.INFO, message);
+            }
         }
 
         /// <summary>
@@ -59,12 +79,15 @@ namespace RawCanvasUI
         /// <param name="message">The message to be sent.</param>
         public static void Warning(string message)
         {
-            Log(LoggingLevel.WARNING, message);
+            if (CurrentLevel <= LoggingLevel.WARNING)
+            {
+                Log(LoggingLevel.WARNING, message);
+            }
         }
 
         private static void Log(LoggingLevel level, string message)
         {
-            Game.LogTrivial($"RawCanvasUI [{Enum.GetName(typeof(LoggingLevel), level)}] {message}");
+            Game.LogTrivial($"RawCanvasUI [{CanvasName}] [{Enum.GetName(typeof(LoggingLevel), level)}] {message}");
         }
     }
 }

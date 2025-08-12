@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RawCanvasUI.Elements;
+using Rage;
 using RawCanvasUI.Interfaces;
+using RawCanvasUI.Keyboard;
 using RawCanvasUI.Mouse;
 using RawCanvasUI.Style;
 
@@ -11,10 +12,30 @@ namespace RawCanvasUI.Util
     /// <summary>
     /// Used by the canvas to manage the widgets.
     /// </summary>
-    internal class WidgetManager
+    internal class WidgetManager : IObserver
     {
         private readonly List<IWidget> widgets = new List<IWidget>();
-        private MouseState mouseState = new MouseUpState();
+        private readonly List<IModal> modals = new List<IModal>();
+        private readonly KeyboardHandler keyboardHandler;
+        private readonly Caret caret;
+        private Mouse.MouseState mouseState = new MouseUpState();
+
+        public WidgetManager(Canvas canvas)
+        {
+            this.Canvas = canvas;
+            this.caret = new Caret();
+            this.keyboardHandler = new KeyboardHandler(this);
+        }
+
+        /// <summary>
+        /// Gets the Canvas assigned to this widget manager.
+        /// </summary>
+        public Canvas Canvas { get; private set; }
+
+        /// <summary>
+        /// Gets the focused control.
+        /// </summary>
+        public IControl FocusedControl { get; private set; } = null;
 
         /// <summary>
         /// Gets or sets the control that is currently being hovered.
@@ -25,6 +46,17 @@ namespace RawCanvasUI.Util
         /// Gets or sets the widget that is currently being hovered.
         /// </summary>
         public IWidget HoveredWidget { get; set; } = null;
+
+        /// <summary>
+        /// Gets a value indicating whether or not any modals are visible.
+        /// </summary>
+        public bool IsModalVisible
+        {
+            get
+            {
+                return this.modals.Any(x => x.IsVisible);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the control that was under the mouse when it was pressed.
@@ -45,6 +77,7 @@ namespace RawCanvasUI.Util
         {
             try
             {
+                Logging.Info("WidgetManager applying styles from stylesheet");
                 var stylesheet = new Stylesheet(stylesheetPath);
                 this.widgets.ForEach(x => x.ApplyStyle(stylesheet));
             }
@@ -91,15 +124,54 @@ namespace RawCanvasUI.Util
         public void Draw(Rage.Graphics g)
         {
             this.widgets.Where(x => x.IsVisible).ToList().ForEach(x => x.Draw(g));
+            this.modals.Where(x => x.IsVisible).ToList().ForEach (x => x.Draw(g));
+            if (this.caret.IsVisible)
+            {
+                this.caret.Draw(g);
+            }
+        }
+
+        /// <summary>
+        /// Gets the active modal.
+        /// </summary>
+        /// <returns></returns>
+        public IModal GetActiveModal()
+        {
+            return this.modals.LastOrDefault(x => x.IsVisible);
         }
 
         /// <summary>
         /// Gets a value indicating the current mouse state.
         /// </summary>
         /// <returns>The mouse state.</returns>
-        public MouseState GetMouseState()
+        public Mouse.MouseState GetMouseState()
         {
             return this.mouseState;
+        }
+
+        /// <summary>
+        /// Handles keyboard input by routing to the appropriate control.
+        /// </summary>
+        /// <param name="input">The text input.</param>
+        public void HandleKeyboardInput(string input)
+        {
+            Logging.Debug($"WidgetManager handling keyboard input: {input}");
+            if (input == "[Esc]")
+            {
+                Logging.Debug("WidgetManager received ESCAPE from KeyboardHandler, existing interactive mode");
+                this.Canvas.IsInteractive = false;
+                this.UpdateFocusedControl(null);
+            }
+            else if (input == "[Tab]")
+            {
+                Logging.Debug("Widgetmanager received TAB from KeyboardHandler, updating focus");
+                this.UpdateFocusedControl(null);
+            }
+            else if (this.FocusedControl is IEditable editable)
+            {
+                editable.HandleInput(input);
+                this.caret.UpdateBounds();
+            }
         }
 
         /// <summary>
@@ -115,7 +187,7 @@ namespace RawCanvasUI.Util
         /// Updates the mouse state.
         /// </summary>
         /// <param name="mouseState">The mouse state.</param>
-        public void SetMouseState(MouseState mouseState)
+        public void SetMouseState(Mouse.MouseState mouseState)
         {
             this.mouseState = mouseState;
         }
@@ -138,7 +210,7 @@ namespace RawCanvasUI.Util
         /// <param name="cursor">The cursor to check.</param>
         public void UpdateHoveredWidget(Cursor cursor)
         {
-            if (this.HoveredWidget == null || !this.HoveredWidget.Contains(cursor))
+            if (this.HoveredWidget == null || !this.HoveredWidget.IsVisible || !this.HoveredWidget.Contains(cursor))
             {
                 this.HoveredWidget = this.GetMousedOverWidget(cursor);
             }
@@ -150,6 +222,55 @@ namespace RawCanvasUI.Util
         public void UpdateWidgetBounds()
         {
             this.widgets.ForEach(x => x.UpdateBounds());
+            this.modals.ForEach(x => x.UpdateBounds());
+        }
+
+        internal void Dispose(IModal modal)
+        {
+            this.modals.Remove(modal);
+        }
+
+        internal void DisposeAll()
+        {
+            this.modals.Clear();
+        }
+        
+        internal void Show(IModal modal)
+        {
+            this.HoveredControl = null;
+            this.HoveredWidget = null;
+            if (!this.modals.Contains(modal))
+            {
+                Logging.Info("WidgetManager adding modal");
+                this.modals.Add(modal);
+            }
+        }
+
+        internal void UpdateFocusedControl(IControl control)
+        {
+            Logging.Debug("WidgetManager updating focused control");
+            if (control == this.FocusedControl)
+            {
+                Logging.Debug("focused control unchanged");
+                return;
+            }
+
+            this.FocusedControl = control;
+            if (control is IEditable editable)
+            {
+                Logging.Debug("focused control is editable, updating");
+                this.keyboardHandler.Start();
+                editable.AddObserver(this);
+                this.caret.IsVisible = true;
+                this.caret.Control = editable;
+                this.caret.UpdateBounds();
+            }
+            else
+            {
+                Logging.Debug("focused control is NOT editable");
+                this.keyboardHandler.Stop();
+                this.caret.IsVisible = false;
+            }
         }
 
         private IControl GetHoveredControl(IWidget widget, Cursor cursor)
@@ -159,15 +280,38 @@ namespace RawCanvasUI.Util
 
         private IWidget GetMousedOverWidget(Cursor cursor)
         {
-            for (int i = this.widgets.Count - 1; i >= 0; i--)
+            if (this.IsModalVisible)
             {
-                if (this.widgets[i].Contains(cursor))
+                var activeModal = this.GetActiveModal();
+                if (activeModal != null && activeModal.Contains(cursor))
                 {
-                    return this.widgets[i];
+                    return activeModal;
+                }
+            }
+            else
+            {
+                for (int i = this.widgets.Count - 1; i >= 0; i--)
+                {
+                    if (this.widgets[i].IsVisible && this.widgets[i].Contains(cursor))
+                    {
+                        return this.widgets[i];
+                    }
                 }
             }
 
             return null;
+        }
+
+        public void OnUpdated(IObservable obj)
+        {
+            if (obj == this.FocusedControl)
+            {
+                if (obj is IEditable)
+                {
+                    Logging.Debug("WidgetManager detected change in editable focused control, updating caret!");
+                    this.caret.UpdateBounds();
+                }
+            }
         }
     }
 }

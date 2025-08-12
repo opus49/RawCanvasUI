@@ -1,5 +1,6 @@
 ﻿using Rage;
 using Rage.Native;
+using RawCanvasUI.Events;
 using RawCanvasUI.Interfaces;
 using RawCanvasUI.Mouse;
 using RawCanvasUI.Util;
@@ -11,19 +12,27 @@ namespace RawCanvasUI
     /// <summary>
     /// A canvas representing the screen area where elements can be added and positioned.
     /// </summary>
-    public sealed class Canvas : IParent
+    public sealed class Canvas : IParent, IDisposable
     {
         private readonly WidgetManager widgetManager;
         private bool isInteractive = false;
         private bool isInteractiveModeJustExited = false;
 
         /// <summary>
+        /// Fires when the interactive state of the canvas changes.
+        /// </summary>
+        public event Action<bool> InteractiveStateChanged;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Canvas"/> class.
         /// </summary>
-        public Canvas()
+        public Canvas(string name = "unknown", LoggingLevel loggingLevel = LoggingLevel.INFO)
         {
             this.UUID = $"canvas-{Guid.NewGuid()}";
-            this.widgetManager = new WidgetManager();
+            Logging.CurrentLevel = loggingLevel;
+            Logging.CanvasName = name;
+            Logging.Info($"Canvas instantiated!");
+            this.widgetManager = new WidgetManager(this);
             this.Cursor = new Cursor()
             {
                 Parent = this,
@@ -57,8 +66,8 @@ namespace RawCanvasUI
             {
                 if (this.isInteractive != value)
                 {
+                    Logging.Debug($"Canvas setting isInteractive to {value}");
                     this.isInteractive = value;
-                    Logging.Debug($"Canvas setting isInteractive to {this.isInteractive}");
                     if (this.isInteractive)
                     {
                         NativeFunction.Natives.SET_USER_RADIO_CONTROL_ENABLED(false);
@@ -69,8 +78,22 @@ namespace RawCanvasUI
                         this.isInteractiveModeJustExited = true;
                     }
                 }
+
+                InteractiveStateChanged?.Invoke(this.isInteractive);
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the console is open.
+        /// This is safe to check on the raw frame render event.
+        /// </summary>
+        public bool IsConsoleOpen { get; private set; } = false;
+
+        /// <summary>
+        /// Gets a value indicating whether or not the menu is active.
+        /// This is safe to check on the raw frame render event.
+        /// </summary>
+        public bool IsFrontendActive { get; private set; } = false;
 
         /// <summary>
         /// Gets a value indicating whether or not the game is paused.
@@ -98,8 +121,18 @@ namespace RawCanvasUI
         /// <param name="widget">The widget to add.</param>
         public void Add(IWidget widget)
         {
+            Logging.Debug($"Canvas adding widget: {widget}");
             widget.Parent = this;
             this.widgetManager.AddWidget(widget);
+        }
+
+        /// <summary>
+        /// Unsubscribe from game events.
+        /// </summary>
+        public void Dispose()
+        {
+            Game.FrameRender -= this.Game_FrameRender;
+            Game.RawFrameRender -= this.Game_RawFrameRender;
         }
 
         /// <summary>
@@ -109,13 +142,11 @@ namespace RawCanvasUI
         /// <param name="stylesheetPath">The fully qualified path to the textures.</param>
         public void Load(string texturePath, string stylesheetPath)
         {
+            Logging.Info($"Canvas loading... texture path: {texturePath}  stylesheet: {stylesheetPath}");
             TextureHandler.Load(this.UUID, texturePath);
             this.widgetManager.ApplyStyle(stylesheetPath);
             this.UpdateBounds();
-            Rage.Game.FrameRender -= this.Game_FrameRender;
-            Rage.Game.RawFrameRender -= this.Game_RawFrameRender;
-            Rage.Game.FrameRender += this.Game_FrameRender;
-            Rage.Game.RawFrameRender += this.Game_RawFrameRender;
+            this.SubscribeEvents();
         }
 
         /// <inheritdoc />
@@ -126,9 +157,13 @@ namespace RawCanvasUI
 
         private void Game_FrameRender(object sender, Rage.GraphicsEventArgs e)
         {
-            this.IsGamePaused = Game.IsPaused || NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
-            if (Game.Console.IsOpen || this.IsGamePaused)
+            this.IsConsoleOpen = Game.Console.IsOpen;
+            this.IsFrontendActive = NativeFunction.Natives.IS_PAUSE_MENU_ACTIVE<bool>();
+            this.IsGamePaused = Game.IsPaused;
+
+            if (this.IsConsoleOpen || this.IsFrontendActive)
             {
+                this.IsInteractive = false;
                 return;
             }
 
@@ -137,7 +172,9 @@ namespace RawCanvasUI
                 if (this.isInteractiveModeJustExited)
                 {
                     this.Cursor.ForceMouseRelease();
+                    this.widgetManager.DisposeAll();
                     this.widgetManager.HandleMouseEvents(this.Cursor);
+                    this.widgetManager.UpdateFocusedControl(null);
                     this.isInteractiveModeJustExited = false;
                 }
 
@@ -146,7 +183,7 @@ namespace RawCanvasUI
 
             if (this.Resolution != Game.Resolution)
             {
-                Logging.Info("game resolution has changed, updating bounds");
+                Logging.Info("Canvas noticed that the game resolution has changed, updating bounds");
                 this.UpdateBounds();
             }
 
@@ -164,13 +201,17 @@ namespace RawCanvasUI
 
         private void Game_RawFrameRender(object sender, Rage.GraphicsEventArgs e)
         {
-            if (!this.IsGamePaused)
+            /*
+            if (this.IsConsoleOpen || this.IsFrontendActive)
             {
-                this.widgetManager.Draw(e.Graphics);
-                if (this.IsInteractive)
-                {
-                    this.Cursor.Draw(e.Graphics);
-                }
+                return;
+            }
+            */
+
+            this.widgetManager.Draw(e.Graphics);
+            if (this.IsInteractive)
+            {
+                this.Cursor.Draw(e.Graphics);
             }
         }
 
@@ -180,6 +221,7 @@ namespace RawCanvasUI
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorY);
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorScrollUp);
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.CursorScrollDown);
+            NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.FrontendPause);
             NativeFunction.Natives.SET_INPUT_EXCLUSIVE(2, (int)GameControl.VehicleAim);
             Game.DisableControlAction(0, GameControl.CursorX, true);
             Game.DisableControlAction(0, GameControl.CursorY, true);
@@ -191,13 +233,53 @@ namespace RawCanvasUI
             Game.DisableControlAction(0, GameControl.WeaponWheelPrev, true);
             Game.DisableControlAction(0, GameControl.Attack, true);
             Game.DisableControlAction(0, GameControl.Attack2, true);
-            Game.DisableControlAction(0, GameControl.Reload, true);
+            Game.DisableControlAction(0, GameControl.FrontendPause, true);
             Game.DisableControlAction(0, GameControl.MeleeAttack1, true);
             Game.DisableControlAction(0, GameControl.MeleeAttack2, true);
             Game.DisableControlAction(0, GameControl.MeleeAttackAlternate, true);
+            Game.DisableControlAction(0, GameControl.Phone, true);
+            Game.DisableControlAction(0, GameControl.Reload, true);
             Game.DisableControlAction(0, GameControl.VehicleAim, true);
             Game.DisableControlAction(0, GameControl.VehicleAttack, true);
             Game.DisableControlAction(0, GameControl.VehicleAttack2, true);
+            Game.DisableControlAction(0, GameControl.VehicleHeadlight, true);
+        }
+
+        private void ModalEventHandler_OnShowModal(object sender, ModalEventArgs e)
+        {
+            Logging.Debug("Canvas detected OnShowModal event");
+            if (e.Modal.CanvasUUID == this.UUID)
+            {
+                Logging.Debug($"Canvas adding modal to widget manager");
+                e.Modal.Parent = this;
+                e.Modal.MoveTo(new Point((int)Constants.CanvasWidth / 2 - e.Modal.Width / 2, (int)Constants.CanvasHeight / 2 - e.Modal.Width / 2));
+                this.widgetManager.Show(e.Modal);
+            }
+            else
+            {
+                Logging.Debug($"Canvas ignoring modals from a different canvas");
+            }
+        }
+
+        private void ModalEventHandler_OnDisposeModal(object sender, ModalEventArgs e)
+        {
+            if (e.Modal.CanvasUUID == this.UUID)
+            {
+                Logging.Debug("Canvas disposing modal");
+                this.widgetManager.Dispose(e.Modal);
+            }
+        }
+
+        private void SubscribeEvents()
+        {
+            Game.FrameRender -= this.Game_FrameRender;
+            Game.RawFrameRender -= this.Game_RawFrameRender;
+            Game.FrameRender += this.Game_FrameRender;
+            Game.RawFrameRender += this.Game_RawFrameRender;
+            ModalEventHandler.OnDisposeModal -= ModalEventHandler_OnDisposeModal;
+            ModalEventHandler.OnShowModal -= ModalEventHandler_OnShowModal;
+            ModalEventHandler.OnDisposeModal += ModalEventHandler_OnDisposeModal;
+            ModalEventHandler.OnShowModal += ModalEventHandler_OnShowModal;
         }
 
         private void UpdateBounds()
