@@ -27,7 +27,7 @@ jobs:
           Compress-Archive -Path RawCanvasUI/bin/Release/RawCanvasUI.dll,RawCanvasUI/bin/Release/RawCanvasUI.xml -DestinationPath RawCanvasUI/bin/Release/RawCanvasUI.zip
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: output
           path: RawCanvasUI/bin/Release/RawCanvasUI.zip
