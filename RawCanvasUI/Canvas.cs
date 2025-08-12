@@ -12,11 +12,16 @@ namespace RawCanvasUI
     /// <summary>
     /// A canvas representing the screen area where elements can be added and positioned.
     /// </summary>
-    public sealed class Canvas : IParent
+    public sealed class Canvas : IParent, IDisposable
     {
         private readonly WidgetManager widgetManager;
         private bool isInteractive = false;
         private bool isInteractiveModeJustExited = false;
+
+        /// <summary>
+        /// Fires when the interactive state of the canvas changes.
+        /// </summary>
+        public event Action<bool> InteractiveStateChanged;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Canvas"/> class.
@@ -73,6 +78,8 @@ namespace RawCanvasUI
                         this.isInteractiveModeJustExited = true;
                     }
                 }
+
+                InteractiveStateChanged?.Invoke(this.isInteractive);
             }
         }
 
@@ -117,6 +124,15 @@ namespace RawCanvasUI
             Logging.Debug($"Canvas adding widget: {widget}");
             widget.Parent = this;
             this.widgetManager.AddWidget(widget);
+        }
+
+        /// <summary>
+        /// Unsubscribe from game events.
+        /// </summary>
+        public void Dispose()
+        {
+            Game.FrameRender -= this.Game_FrameRender;
+            Game.RawFrameRender -= this.Game_RawFrameRender;
         }
 
         /// <summary>

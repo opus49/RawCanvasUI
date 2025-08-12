@@ -22,7 +22,7 @@
 		<PackageReleaseNotes>https://github.com/opus49/RawCanvasUI/releases</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Description>Library for RAGEPluginHook that allows you to make interactive UI elements.</Description>
-		<Copyright>Copyright © 2023-24 opus49</Copyright>
+		<Copyright>Copyright © 2023-25 opus49</Copyright>
 		<SignAssembly>False</SignAssembly>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(Configuration.StartsWith('Debug'))">
